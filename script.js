@@ -7,6 +7,7 @@ class Gomoku {
         this.gameOver = false;
         this.canvas = document.getElementById('game-board');
         this.ctx = this.canvas.getContext('2d');
+        this.moveHistory = []; // 添加棋局历史记录
         
         this.initBoard();
         this.drawBoard();
@@ -106,10 +107,21 @@ class Gomoku {
         document.getElementById('restart-btn').addEventListener('click', () => {
             this.restart();
         });
+        
+        document.getElementById('undo-btn').addEventListener('click', () => {
+            this.undo();
+        });
     }
     
     playChess(x, y) {
         if (this.board[x][y] !== null) return;
+        
+        // 记录这一步棋到历史记录
+        this.moveHistory.push({
+            x: x,
+            y: y,
+            player: this.currentPlayer
+        });
         
         this.board[x][y] = this.currentPlayer;
         this.drawBoard();
@@ -124,6 +136,36 @@ class Gomoku {
         
         this.currentPlayer = this.currentPlayer === 'black' ? 'white' : 'black';
         this.updatePlayerInfo();
+        this.updateUndoButton(); // 更新悔棋按钮状态
+    }
+    
+    undo() {
+        // 如果没有棋子可悔或游戏结束，则不能悔棋
+        if (this.moveHistory.length === 0 || this.gameOver) return;
+        
+        // 从历史记录中取出最后一步棋
+        const lastMove = this.moveHistory.pop();
+        
+        // 清除棋盘上的棋子
+        this.board[lastMove.x][lastMove.y] = null;
+        
+        // 切换当前玩家（回到上一步的玩家）
+        this.currentPlayer = lastMove.player;
+        
+        // 重新绘制棋盘
+        this.drawBoard();
+        
+        // 更新玩家信息
+        this.updatePlayerInfo();
+        
+        // 更新悔棋按钮状态
+        this.updateUndoButton();
+    }
+    
+    updateUndoButton() {
+        const undoBtn = document.getElementById('undo-btn');
+        // 如果有历史记录且游戏未结束，则启用悔棋按钮
+        undoBtn.disabled = this.moveHistory.length === 0 || this.gameOver;
     }
     
     checkWin(x, y) {
@@ -176,8 +218,10 @@ class Gomoku {
         this.initBoard();
         this.currentPlayer = 'black';
         this.gameOver = false;
+        this.moveHistory = []; // 清空历史记录
         this.drawBoard();
         this.updatePlayerInfo();
+        this.updateUndoButton(); // 更新悔棋按钮状态
     }
 }
 
