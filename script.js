@@ -1,187 +1,192 @@
-class Gomoku {
+// 二次函数可视化类
+class QuadraticFunction {
     constructor() {
-        this.boardSize = 15;
-        this.cellSize = 32;
-        this.board = [];
-        this.currentPlayer = 'black';
-        this.gameOver = false;
-        this.canvas = document.getElementById('game-board');
+        this.canvas = document.getElementById('function-board');
         this.ctx = this.canvas.getContext('2d');
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
         
-        this.initBoard();
-        this.drawBoard();
+        // 设置默认的二次函数参数
+        this.a = 1;
+        this.b = 0;
+        this.c = 0;
+        
+        // 坐标原点在画布中心
+        this.originX = this.width / 2;
+        this.originY = this.height / 2;
+        
+        // 坐标轴缩放比例
+        this.scaleX = 20; // 每个单位长度的像素
+        this.scaleY = 20; // 每个单位长度的像素
+        
         this.bindEvents();
-        this.updatePlayerInfo();
-    }
-    
-    initBoard() {
-        for (let i = 0; i < this.boardSize; i++) {
-            this.board[i] = [];
-            for (let j = 0; j < this.boardSize; j++) {
-                this.board[i][j] = null;
-            }
-        }
-    }
-    
-    drawBoard() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // 绘制棋盘背景
-        this.ctx.fillStyle = '#dcb35c';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // 绘制网格线
-        this.ctx.strokeStyle = '#000';
-        this.ctx.lineWidth = 1;
-        
-        for (let i = 0; i < this.boardSize; i++) {
-            // 垂直线
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.cellSize/2 + i * this.cellSize, this.cellSize/2);
-            this.ctx.lineTo(this.cellSize/2 + i * this.cellSize, this.canvas.height - this.cellSize/2);
-            this.ctx.stroke();
-            
-            // 水平线
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.cellSize/2, this.cellSize/2 + i * this.cellSize);
-            this.ctx.lineTo(this.canvas.width - this.cellSize/2, this.cellSize/2 + i * this.cellSize);
-            this.ctx.stroke();
-        }
-        
-        // 绘制已下的棋子
-        for (let i = 0; i < this.boardSize; i++) {
-            for (let j = 0; j < this.boardSize; j++) {
-                if (this.board[i][j]) {
-                    this.drawChessman(i, j, this.board[i][j]);
-                }
-            }
-        }
-    }
-    
-    drawChessman(x, y, color) {
-        const centerX = this.cellSize/2 + x * this.cellSize;
-        const centerY = this.cellSize/2 + y * this.cellSize;
-        const radius = this.cellSize/2 - 2;
-        
-        // 绘制棋子
-        this.ctx.beginPath();
-        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        
-        // 设置渐变效果
-        const gradient = this.ctx.createRadialGradient(
-            centerX - radius/3, centerY - radius/3, radius/8,
-            centerX, centerY, radius
-        );
-        
-        if (color === 'black') {
-            gradient.addColorStop(0, '#666');
-            gradient.addColorStop(1, '#000');
-        } else {
-            gradient.addColorStop(0, '#fff');
-            gradient.addColorStop(1, '#ccc');
-        }
-        
-        this.ctx.fillStyle = gradient;
-        this.ctx.fill();
-        this.ctx.strokeStyle = '#000';
-        this.ctx.stroke();
+        this.drawFunction();
     }
     
     bindEvents() {
-        this.canvas.addEventListener('click', (e) => {
-            if (this.gameOver) return;
-            
-            const rect = this.canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const gridX = Math.round((x - this.cellSize/2) / this.cellSize);
-            const gridY = Math.round((y - this.cellSize/2) / this.cellSize);
-            
-            if (gridX >= 0 && gridX < this.boardSize && gridY >= 0 && gridY < this.boardSize) {
-                this.playChess(gridX, gridY);
-            }
+        document.getElementById('draw-btn').addEventListener('click', () => {
+            this.updateFunction();
         });
         
-        document.getElementById('restart-btn').addEventListener('click', () => {
-            this.restart();
+        // 也可以支持按Enter键绘制
+        document.querySelectorAll('.function-form input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.updateFunction();
+                }
+            });
         });
     }
     
-    playChess(x, y) {
-        if (this.board[x][y] !== null) return;
+    updateFunction() {
+        // 获取输入的参数
+        this.a = parseFloat(document.getElementById('a').value) || 0;
+        this.b = parseFloat(document.getElementById('b').value) || 0;
+        this.c = parseFloat(document.getElementById('c').value) || 0;
         
-        this.board[x][y] = this.currentPlayer;
-        this.drawBoard();
+        this.drawFunction();
+    }
+    
+    drawFunction() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
         
-        if (this.checkWin(x, y)) {
-            this.gameOver = true;
-            setTimeout(() => {
-                alert(`恭喜！${this.currentPlayer === 'black' ? '黑棋' : '白棋'}获胜！`);
-            }, 100);
-            return;
+        // 绘制坐标轴
+        this.drawAxes();
+        
+        // 绘制函数曲线
+        this.drawCurve();
+    }
+    
+    drawAxes() {
+        this.ctx.save();
+        
+        // 设置坐标轴颜色为黑色，线宽为1磅
+        this.ctx.strokeStyle = '#000';
+        this.ctx.lineWidth = 1;
+        
+        // 绘制x轴
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, this.originY);
+        this.ctx.lineTo(this.width, this.originY);
+        this.ctx.stroke();
+        
+        // 绘制y轴
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.originX, 0);
+        this.ctx.lineTo(this.originX, this.height);
+        this.ctx.stroke();
+        
+        // 绘制x轴箭头
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.width - 10, this.originY - 5);
+        this.ctx.lineTo(this.width, this.originY);
+        this.ctx.lineTo(this.width - 10, this.originY + 5);
+        this.ctx.stroke();
+        
+        // 绘制y轴箭头
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.originX - 5, 10);
+        this.ctx.lineTo(this.originX, 5);
+        this.ctx.lineTo(this.originX + 5, 10);
+        this.ctx.stroke();
+        
+        // 绘制刻度和标签
+        this.drawTicks();
+        
+        this.ctx.restore();
+    }
+    
+    drawTicks() {
+        this.ctx.save();
+        
+        // 设置刻度文字样式
+        this.ctx.fillStyle = '#000';
+        this.ctx.font = '12px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'top';
+        
+        // 绘制x轴刻度
+        const xTickCount = Math.floor(this.width / (2 * this.scaleX));
+        for (let i = -xTickCount; i <= xTickCount; i++) {
+            if (i === 0) continue; // 原点不画刻度
+            
+            const x = this.originX + i * this.scaleX;
+            if (x > 0 && x < this.width) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, this.originY - 5);
+                this.ctx.lineTo(x, this.originY + 5);
+                this.ctx.stroke();
+                
+                this.ctx.fillText(i.toString(), x, this.originY + 8);
+            }
         }
         
-        this.currentPlayer = this.currentPlayer === 'black' ? 'white' : 'black';
-        this.updatePlayerInfo();
-    }
-    
-    checkWin(x, y) {
-        const directions = [
-            [1, 0],   // 水平
-            [0, 1],   // 垂直
-            [1, 1],   // 对角线
-            [1, -1]   // 反对角线
-        ];
-        
-        const color = this.board[x][y];
-        if (!color) return false;
-        
-        for (let [dx, dy] of directions) {
-            let count = 1;
+        // 绘制y轴刻度
+        const yTickCount = Math.floor(this.height / (2 * this.scaleY));
+        for (let i = -yTickCount; i <= yTickCount; i++) {
+            if (i === 0) continue; // 原点不画刻度
             
-            // 正方向计数
-            for (let i = 1; i < 5; i++) {
-                const nx = x + dx * i;
-                const ny = y + dy * i;
-                if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize && this.board[nx][ny] === color) {
-                    count++;
-                } else {
-                    break;
-                }
+            const y = this.originY - i * this.scaleY;
+            if (y > 0 && y < this.height) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.originX - 5, y);
+                this.ctx.lineTo(this.originX + 5, y);
+                this.ctx.stroke();
+                
+                this.ctx.textAlign = 'right';
+                this.ctx.textBaseline = 'middle';
+                this.ctx.fillText(i.toString(), this.originX - 8, y);
+                this.ctx.textAlign = 'center';
+                this.ctx.textBaseline = 'top';
             }
-            
-            // 反方向计数
-            for (let i = 1; i < 5; i++) {
-                const nx = x - dx * i;
-                const ny = y - dy * i;
-                if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize && this.board[nx][ny] === color) {
-                    count++;
-                } else {
-                    break;
-                }
-            }
-            
-            if (count >= 5) return true;
         }
         
-        return false;
+        // 绘制原点标签
+        if (this.originX > 10 && this.originX < this.width - 10 && 
+            this.originY > 10 && this.originY < this.height - 10) {
+            this.ctx.textAlign = 'right';
+            this.ctx.textBaseline = 'bottom';
+            this.ctx.fillText('0', this.originX - 8, this.originY + 8);
+        }
+        
+        this.ctx.restore();
     }
     
-    updatePlayerInfo() {
-        document.getElementById('current-player').textContent = this.currentPlayer === 'black' ? '黑棋' : '白棋';
-    }
-    
-    restart() {
-        this.initBoard();
-        this.currentPlayer = 'black';
-        this.gameOver = false;
-        this.drawBoard();
-        this.updatePlayerInfo();
+    drawCurve() {
+        this.ctx.save();
+        
+        // 设置曲线颜色为红色，线宽为1.5磅
+        this.ctx.strokeStyle = 'red';
+        this.ctx.lineWidth = 1.5;
+        this.ctx.beginPath();
+        
+        // 计算函数值并绘制曲线
+        const step = 1; // 步长设置为1像素
+        
+        // 从画布的左边到右边绘制曲线
+        for (let xPixel = 0; xPixel <= this.width; xPixel += step) {
+            // 将像素坐标转换为数学坐标
+            const x = (xPixel - this.originX) / this.scaleX;
+            
+            // 计算二次函数值: y = ax^2 + bx + c
+            const y = this.a * x * x + this.b * x + this.c;
+            
+            // 将数学坐标转换为像素坐标
+            const yPixel = this.originY - y * this.scaleY;
+            
+            if (xPixel === 0) {
+                this.ctx.moveTo(xPixel, yPixel);
+            } else {
+                this.ctx.lineTo(xPixel, yPixel);
+            }
+        }
+        
+        this.ctx.stroke();
+        this.ctx.restore();
     }
 }
 
-// 页面加载完成后初始化游戏
+// 页面加载完成后初始化二次函数可视化
 window.addEventListener('DOMContentLoaded', () => {
-    new Gomoku();
+    new QuadraticFunction();
 });

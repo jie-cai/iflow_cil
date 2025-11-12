@@ -21,20 +21,33 @@ h1 {
     margin-top: 0;
 }
 
-.game-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.function-info {
     margin-bottom: 20px;
 }
 
-.current-player {
-    font-size: 18px;
+.function-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.function-form label {
+    font-size: 16px;
     font-weight: bold;
 }
 
-#restart-btn {
-    padding: 10px 20px;
+.function-form input {
+    width: 60px;
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+#draw-btn {
+    padding: 8px 16px;
     font-size: 16px;
     background-color: #4CAF50;
     color: white;
@@ -43,13 +56,12 @@ h1 {
     cursor: pointer;
 }
 
-#restart-btn:hover {
+#draw-btn:hover {
     background-color: #45a049;
 }
 
 .board-container {
     display: inline-block;
-    border: 2px solid #333;
-    border-radius: 5px;
-    background-color: #dcb35c;
+    border: 1px solid #ccc;
+    background-color: #fff;
 }
