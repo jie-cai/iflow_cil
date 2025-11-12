@@ -1,0 +1,100 @@
+body {
+    font-family: '微软雅黑', Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+p {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.controls {
+    background-color: #ecf0f1;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.control-group {
+    margin-bottom: 15px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.control-group input[type="range"] {
+    width: 70%;
+    margin-right: 10px;
+}
+
+.control-group span {
+    display: inline-block;
+    width: 40px;
+    text-align: center;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.equation {
+    background-color: #d5f5e3;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.equation p {
+    margin: 5px 0;
+    text-align: center;
+}
+
+.graph-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#parabola-canvas {
+    border: 1px solid #bdc3c7;
+    background-color: #fff;
+}
+
+.explanation {
+    background-color: #fef9e7;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.explanation h3 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.explanation ul {
+    padding-left: 20px;
+}
+
+.explanation li {
+    margin-bottom: 10px;
+}

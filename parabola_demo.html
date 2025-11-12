@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抛物线曲线演示 - 初中数学教学</title>
+    <link rel="stylesheet" href="parabola_styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>抛物线曲线演示</h1>
+        <p>通过调节参数 a, h, k 来观察抛物线 y = a(x-h)² + k 的变化</p>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="a-value">参数 a (控制开口方向和宽度):</label>
+                <input type="range" id="a-value" min="-2" max="2" step="0.1" value="1">
+                <span id="a-display">1</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="h-value">参数 h (控制左右平移):</label>
+                <input type="range" id="h-value" min="-5" max="5" step="0.1" value="0">
+                <span id="h-display">0</span>
+            </div>
+            
+            <div class="control-group">
+                <label for="k-value">参数 k (控制上下平移):</label>
+                <input type="range" id="k-value" min="-5" max="5" step="0.1" value="0">
+                <span id="k-display">0</span>
+            </div>
+        </div>
+        
+        <div class="equation">
+            <p>当前方程: y = <span id="a-equation">1</span>(x - (<span id="h-equation">0</span>))² + <span id="k-equation">0</span></p>
+            <p>顶点坐标: (<span id="vertex-h">0</span>, <span id="vertex-k">0</span>)</p>
+        </div>
+        
+        <div class="graph-container">
+            <canvas id="parabola-canvas" width="600" height="400"></canvas>
+        </div>
+        
+        <div class="explanation">
+            <h3>抛物线知识要点</h3>
+            <ul>
+                <li>抛物线是二次函数的图像</li>
+                <li>标准形式: y = a(x-h)² + k，其中 (h, k) 是顶点坐标</li>
+                <li>参数 a 决定开口方向和宽度：当 a > 0 时开口向上，a < 0 时开口向下</li>
+                <li>参数 h 控制图像左右平移</li>
+                <li>参数 k 控制图像上下平移</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="parabola_script.js"></script>
+</body>
+</html>
