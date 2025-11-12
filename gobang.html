@@ -9,12 +9,60 @@
 <body>
     <div class="container">
         <h1>五子棋游戏</h1>
-        <div class="game-info">
-            <div class="current-player">当前玩家: <span id="current-player">黑棋</span></div>
-            <button id="restart-btn">重新开始</button>
+        
+        <!-- 游戏规则设置 -->
+        <div class="settings-panel" id="settings-panel">
+            <h2>游戏设置</h2>
+            <div class="setting-group">
+                <label for="board-size">棋盘大小:</label>
+                <select id="board-size">
+                    <option value="15">15×15 (标准)</option>
+                    <option value="19">19×19 (围棋)</option>
+                    <option value="13">13×13 (小棋盘)</option>
+                </select>
+            </div>
+            
+            <div class="setting-group">
+                <label for="game-mode">游戏模式:</label>
+                <select id="game-mode">
+                    <option value="standard">标准模式</option>
+                    <option value="free">自由模式</option>
+                    <option value="renju">连珠规则</option>
+                </select>
+                <div class="mode-description" id="mode-description">
+                    <p id="standard-desc">标准模式：黑棋有禁手规则</p>
+                    <p id="free-desc" style="display:none;">自由模式：无禁手规则，自由对弈</p>
+                    <p id="renju-desc" style="display:none;">连珠规则：完整的连珠禁手规则</p>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <label>
+                    <input type="checkbox" id="forbidden-checks" checked> 
+                    启用禁手规则（仅黑棋）
+                </label>
+            </div>
+            
+            <div class="setting-group">
+                <label>
+                    <input type="checkbox" id="first-player-black" checked> 
+                    黑棋先手
+                </label>
+            </div>
+            
+            <button id="start-game">开始游戏</button>
         </div>
-        <div class="game-board" id="game-board"></div>
-        <div class="game-status" id="game-status"></div>
+        
+        <!-- 游戏界面 -->
+        <div class="game-interface" id="game-interface" style="display: none;">
+            <div class="game-info">
+                <div class="current-player">当前玩家: <span id="current-player">黑棋</span></div>
+                <button id="restart-btn">重新开始</button>
+                <button id="settings-btn">设置</button>
+            </div>
+            <div class="game-board" id="game-board"></div>
+            <div class="game-status" id="game-status"></div>
+        </div>
     </div>
     <script src="gobang.js"></script>
 </body>
