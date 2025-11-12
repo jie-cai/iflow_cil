@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抛物线曲线演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        #coordinate-system {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            border: 1px solid #ccc;
+        }
+        
+        #x-axis, #y-axis {
+            position: absolute;
+            background-color: black;
+        }
+        
+        #x-axis {
+            width: 100%;
+            height: 1px;
+            top: 50%;
+        }
+        
+        #y-axis {
+            width: 1px;
+            height: 100%;
+            left: 50%;
+        }
+        
+        .tick {
+            position: absolute;
+            font-size: 12px;
+            color: black;
+        }
+        
+        #parabola {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .control-panel {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .control-group label {
+            margin-bottom: 5px;
+        }
+        
+        .control-group input[type="number"] {
+            width: 60px;
+            margin-bottom: 5px;
+        }
+        
+        .control-group input[type="range"] {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <h1>抛物线曲线演示</h1>
+    <div id="coordinate-system">
+        <div id="x-axis"></div>
+        <div id="y-axis"></div>
+        <svg id="parabola"></svg>
+    </div>
+    
+    <div class="control-panel">
+        <div class="control-group">
+            <label for="a-value">a:</label>
+            <input type="number" id="a-value" value="1" step="0.1">
+            <input type="range" id="a-slider" min="-5" max="5" value="1" step="0.1">
+        </div>
+        
+        <div class="control-group">
+            <label for="b-value">b:</label>
+            <input type="number" id="b-value" value="0" step="0.1">
+            <input type="range" id="b-slider" min="-5" max="5" value="0" step="0.1">
+        </div>
+        
+        <div class="control-group">
+            <label for="c-value">c:</label>
+            <input type="number" id="c-value" value="0" step="0.1">
+            <input type="range" id="c-slider" min="-5" max="5" value="0" step="0.1">
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const aSlider = document.getElementById('a-slider');
+        const bSlider = document.getElementById('b-slider');
+        const cSlider = document.getElementById('c-slider');
+        const aValue = document.getElementById('a-value');
+        const bValue = document.getElementById('b-value');
+        const cValue = document.getElementById('c-value');
+        const parabolaSVG = document.getElementById('parabola');
+        const coordinateSystem = document.getElementById('coordinate-system');
+        
+        // 坐标系参数
+        const width = coordinateSystem.offsetWidth;
+        const height = coordinateSystem.offsetHeight;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const scale = 20; // 缩放比例
+        
+        // 初始化
+        drawAxes();
+        drawTicks();
+        drawParabola();
+        
+        // 绑定事件监听器
+        aSlider.addEventListener('input', updateA);
+        bSlider.addEventListener('input', updateB);
+        cSlider.addEventListener('input', updateC);
+        aValue.addEventListener('change', updateAFromInput);
+        bValue.addEventListener('change', updateBFromInput);
+        cValue.addEventListener('change', updateCFromInput);
+        
+        // 更新函数
+        function updateA() {
+            aValue.value = aSlider.value;
+            drawParabola();
+        }
+        
+        function updateB() {
+            bValue.value = bSlider.value;
+            drawParabola();
+        }
+        
+        function updateC() {
+            cValue.value = cSlider.value;
+            drawParabola();
+        }
+        
+        function updateAFromInput() {
+            aSlider.value = aValue.value;
+            drawParabola();
+        }
+        
+        function updateBFromInput() {
+            bSlider.value = bValue.value;
+            drawParabola();
+        }
+        
+        function updateCFromInput() {
+            cSlider.value = cValue.value;
+            drawParabola();
+        }
+        
+        // 绘制坐标轴
+        function drawAxes() {
+            // 清空SVG内容
+            parabolaSVG.innerHTML = '';
+            
+            // 创建坐标轴线
+            const xAxisLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            xAxisLine.setAttribute('x1', 0);
+            xAxisLine.setAttribute('y1', centerY);
+            xAxisLine.setAttribute('x2', width);
+            xAxisLine.setAttribute('y2', centerY);
+            xAxisLine.setAttribute('stroke', 'black');
+            xAxisLine.setAttribute('stroke-width', 1);
+            
+            const yAxisLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            yAxisLine.setAttribute('x1', centerX);
+            yAxisLine.setAttribute('y1', 0);
+            yAxisLine.setAttribute('x2', centerX);
+            yAxisLine.setAttribute('y2', height);
+            yAxisLine.setAttribute('stroke', 'black');
+            yAxisLine.setAttribute('stroke-width', 1);
+            
+            parabolaSVG.appendChild(xAxisLine);
+            parabolaSVG.appendChild(yAxisLine);
+        }
+        
+        // 绘制刻度
+        function drawTicks() {
+            // 清空现有刻度
+            const existingTicks = document.querySelectorAll('.tick');
+            existingTicks.forEach(tick => tick.remove());
+            
+            // 绘制X轴刻度
+            for (let i = -Math.floor(centerX / scale); i <= Math.floor(centerX / scale); i++) {
+                if (i === 0) continue; // 跳过原点
+                
+                // 刻度线
+                const tickLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                tickLine.setAttribute('x1', centerX + i * scale);
+                tickLine.setAttribute('y1', centerY - 5);
+                tickLine.setAttribute('x2', centerX + i * scale);
+                tickLine.setAttribute('y2', centerY + 5);
+                tickLine.setAttribute('stroke', 'black');
+                tickLine.setAttribute('stroke-width', 1);
+                parabolaSVG.appendChild(tickLine);
+                
+                // 刻度值
+                const tickText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                tickText.setAttribute('x', centerX + i * scale);
+                tickText.setAttribute('y', centerY + 20);
+                tickText.setAttribute('text-anchor', 'middle');
+                tickText.setAttribute('font-size', '12');
+                tickText.textContent = i;
+                parabolaSVG.appendChild(tickText);
+            }
+            
+            // 绘制Y轴刻度
+            for (let i = -Math.floor(centerY / scale); i <= Math.floor(centerY / scale); i++) {
+                if (i === 0) continue; // 跳过原点
+                
+                // 刻度线
+                const tickLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                tickLine.setAttribute('x1', centerX - 5);
+                tickLine.setAttribute('y1', centerY - i * scale);
+                tickLine.setAttribute('x2', centerX + 5);
+                tickLine.setAttribute('y2', centerY - i * scale);
+                tickLine.setAttribute('stroke', 'black');
+                tickLine.setAttribute('stroke-width', 1);
+                parabolaSVG.appendChild(tickLine);
+                
+                // 刻度值
+                const tickText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                tickText.setAttribute('x', centerX - 10);
+                tickText.setAttribute('y', centerY - i * scale + 5);
+                tickText.setAttribute('text-anchor', 'end');
+                tickText.setAttribute('font-size', '12');
+                tickText.textContent = i;
+                parabolaSVG.appendChild(tickText);
+            }
+        }
+        
+        // 绘制抛物线
+        function drawParabola() {
+            const a = parseFloat(aValue.value);
+            const b = parseFloat(bValue.value);
+            const c = parseFloat(cValue.value);
+            
+            // 生成路径数据
+            let pathData = '';
+            let isFirstPoint = true;
+            
+            for (let x = -centerX; x <= centerX; x += 1) {
+                // 将屏幕坐标转换为数学坐标
+                const mathX = x / scale;
+                
+                // 计算y值
+                const mathY = a * mathX * mathX + b * mathX + c;
+                
+                // 将数学坐标转换为屏幕坐标
+                const screenY = centerY - mathY * scale;
+                const screenX = centerX + mathX * scale;
+                
+                // 检查点是否在可视区域内
+                if (screenY >= -100 && screenY <= height + 100) {
+                    if (isFirstPoint) {
+                        pathData += `M ${screenX} ${screenY}`;
+                        isFirstPoint = false;
+                    } else {
+                        pathData += ` L ${screenX} ${screenY}`;
+                    }
+                } else {
+                    isFirstPoint = true;
+                }
+            }
+            
+            // 创建或更新路径元素
+            let path = document.getElementById('parabola-path');
+            if (!path) {
+                path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('id', 'parabola-path');
+                path.setAttribute('stroke', 'red');
+                path.setAttribute('stroke-width', 1.5);
+                path.setAttribute('fill', 'none');
+                parabolaSVG.appendChild(path);
+            }
+            
+            path.setAttribute('d', pathData);
+        }
+    </script>
+</body>
+</html>
