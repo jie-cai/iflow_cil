@@ -1,0 +1,129 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+h1 {
+    margin-top: 0;
+    color: #333;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+.current-player {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#restart-btn {
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#restart-btn:hover {
+    background-color: #45a049;
+}
+
+.game-board {
+    display: inline-block;
+    background-color: #dcb35c;
+    border: 2px solid #8b4513;
+    border-radius: 4px;
+    padding: 10px;
+    position: relative;
+    width: calc(30px * 15 + 2px);
+    height: calc(30px * 15 + 2px);
+}
+
+/* 棋盘网格 */
+.game-board::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(to right, #000 1px, transparent 1px),
+        linear-gradient(to bottom, #000 1px, transparent 1px);
+    background-size: 30px 30px;
+    z-index: 1;
+    pointer-events: none; /* 让网格不影响点击事件 */
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    position: absolute;
+    z-index: 2;
+    cursor: pointer;
+}
+
+/* 棋子 */
+.stone {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    z-index: 3;
+    box-sizing: border-box;
+    border: 1px solid #333;
+    transform: scale(0);
+    animation: appear 0.3s forwards;
+}
+
+@keyframes appear {
+    to {
+        transform: scale(1);
+    }
+}
+
+.black-stone {
+    background: radial-gradient(circle at 30% 30%, #666, #000);
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.white-stone {
+    background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.game-status {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    min-height: 30px;
+}
+
+.winner {
+    color: green;
+}
+
+.draw {
+    color: orange;
+}
