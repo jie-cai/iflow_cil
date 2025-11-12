@@ -7,6 +7,7 @@ class Gomoku {
         this.gameOver = false;
         this.canvas = document.getElementById('game-board');
         this.ctx = this.canvas.getContext('2d');
+        this.moveHistory = []; // 记录下棋历史，用于悔棋功能
         
         this.initBoard();
         this.drawBoard();
@@ -106,10 +107,17 @@ class Gomoku {
         document.getElementById('restart-btn').addEventListener('click', () => {
             this.restart();
         });
+        
+        document.getElementById('undo-btn').addEventListener('click', () => {
+            this.undo();
+        });
     }
     
     playChess(x, y) {
         if (this.board[x][y] !== null) return;
+        
+        // 记录下棋历史
+        this.moveHistory.push({x: x, y: y, player: this.currentPlayer});
         
         this.board[x][y] = this.currentPlayer;
         this.drawBoard();
@@ -123,6 +131,26 @@ class Gomoku {
         }
         
         this.currentPlayer = this.currentPlayer === 'black' ? 'white' : 'black';
+        this.updatePlayerInfo();
+    }
+    
+    undo() {
+        // 如果游戏结束或没有下棋历史，则不能悔棋
+        if (this.gameOver || this.moveHistory.length === 0) return;
+        
+        // 获取最后一步棋的信息
+        const lastMove = this.moveHistory.pop();
+        
+        // 从棋盘上移除这步棋
+        this.board[lastMove.x][lastMove.y] = null;
+        
+        // 切换当前玩家（回到上一步的玩家）
+        this.currentPlayer = lastMove.player;
+        
+        // 重新绘制棋盘
+        this.drawBoard();
+        
+        // 更新玩家信息显示
         this.updatePlayerInfo();
     }
     
@@ -176,6 +204,7 @@ class Gomoku {
         this.initBoard();
         this.currentPlayer = 'black';
         this.gameOver = false;
+        this.moveHistory = []; // 清空悔棋历史
         this.drawBoard();
         this.updatePlayerInfo();
     }
