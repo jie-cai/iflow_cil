@@ -45,7 +45,7 @@
         }
 
         #parabolaCanvas {
-            background: #f8f9fa;
+            background: white;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 100%;
@@ -333,8 +333,8 @@
                 }
                 
                 // 绘制坐标轴
-                ctx.strokeStyle = '#4a5568';
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
                 
                 // X轴
                 ctx.beginPath();
@@ -349,7 +349,7 @@
                 ctx.stroke();
                 
                 // 绘制刻度和标签
-                ctx.fillStyle = '#4a5568';
+                ctx.fillStyle = 'black';
                 ctx.font = '12px Arial';
                 ctx.textAlign = 'center';
                 
@@ -390,8 +390,8 @@
                 const xMin = -(this.originX / this.scale);
                 const xMax = (width - this.originX) / this.scale;
                 
-                ctx.strokeStyle = '#667eea';
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 1.5;
                 ctx.beginPath();
                 
                 let isFirstPoint = true;
@@ -421,16 +421,10 @@
                     const vertexY = this.calculateY(vertexX);
                     const vertex = this.mathToCanvas(vertexX, vertexY);
                     
-                    ctx.fillStyle = '#e53e3e';
+                    ctx.fillStyle = 'red';
                     ctx.beginPath();
-                    ctx.arc(vertex.x, vertex.y, 6, 0, 2 * Math.PI);
+                    ctx.arc(vertex.x, vertex.y, 4, 0, 2 * Math.PI);
                     ctx.fill();
-                    
-                    // 标注顶点
-                    ctx.fillStyle = '#e53e3e';
-                    ctx.font = 'bold 14px Arial';
-                    ctx.textAlign = 'left';
-                    ctx.fillText(`顶点(${vertexX.toFixed(2)}, ${vertexY.toFixed(2)})`, vertex.x + 10, vertex.y - 10);
                 }
                 
                 // 绘制对称轴
@@ -438,20 +432,14 @@
                     const axisX = -this.b / (2 * this.a);
                     const axis = this.mathToCanvas(axisX, 0);
                     
-                    ctx.strokeStyle = '#38a169';
-                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = 'blue';
+                    ctx.lineWidth = 1;
                     ctx.setLineDash([5, 5]);
                     ctx.beginPath();
                     ctx.moveTo(axis.x, 0);
                     ctx.lineTo(axis.x, this.canvas.height);
                     ctx.stroke();
                     ctx.setLineDash([]);
-                    
-                    // 标注对称轴
-                    ctx.fillStyle = '#38a169';
-                    ctx.font = 'bold 14px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(`对称轴: x = ${axisX.toFixed(2)}`, axis.x, 20);
                 }
             }
 
