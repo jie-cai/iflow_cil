@@ -309,6 +309,46 @@
                     }
                 });
 
+                // 文本框变化事件（支持实时更新）
+                document.getElementById('a-input').addEventListener('change', (e) => {
+                    let value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                        // 限制范围
+                        value = Math.max(-5, Math.min(5, value));
+                        this.a = value;
+                        document.getElementById('a-slider').value = value;
+                        document.getElementById('a-display').textContent = this.a;
+                        document.getElementById('a-value').textContent = this.a;
+                        this.draw();
+                    }
+                });
+
+                document.getElementById('b-input').addEventListener('change', (e) => {
+                    let value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                        // 限制范围
+                        value = Math.max(-10, Math.min(10, value));
+                        this.b = value;
+                        document.getElementById('b-slider').value = value;
+                        document.getElementById('b-display').textContent = this.b;
+                        document.getElementById('b-value').textContent = this.b >= 0 ? `+${this.b}` : this.b;
+                        this.draw();
+                    }
+                });
+
+                document.getElementById('c-input').addEventListener('change', (e) => {
+                    let value = parseFloat(e.target.value);
+                    if (!isNaN(value)) {
+                        // 限制范围
+                        value = Math.max(-10, Math.min(10, value));
+                        this.c = value;
+                        document.getElementById('c-slider').value = value;
+                        document.getElementById('c-display').textContent = this.c;
+                        document.getElementById('c-value').textContent = this.c >= 0 ? `+${this.c}` : this.c;
+                        this.draw();
+                    }
+                });
+
                 // 重置按钮事件
                 document.getElementById('reset-btn').addEventListener('click', () => {
                     this.resetParameters();
