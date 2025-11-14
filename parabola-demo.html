@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抛物线曲线演示 - 初中数学教学</title>
+    <link rel="stylesheet" href="parabola-style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>抛物线曲线演示</h1>
+            <p>调整参数观察抛物线 y = ax² + bx + c 的变化</p>
+        </header>
+        
+        <main>
+            <section class="controls">
+                <h2>参数控制</h2>
+                <div class="parameter-group">
+                    <div class="parameter">
+                        <label for="param-a">参数 a:</label>
+                        <input type="range" id="param-a" min="-5" max="5" step="0.1" value="1">
+                        <span id="value-a">1</span>
+                    </div>
+                    <div class="parameter">
+                        <label for="param-b">参数 b:</label>
+                        <input type="range" id="param-b" min="-10" max="10" step="0.1" value="0">
+                        <span id="value-b">0</span>
+                    </div>
+                    <div class="parameter">
+                        <label for="param-c">参数 c:</label>
+                        <input type="range" id="param-c" min="-10" max="10" step="0.1" value="0">
+                        <span id="value-c">0</span>
+                    </div>
+                </div>
+                
+                <div class="equation-display">
+                    <h3>当前方程:</h3>
+                    <p id="equation">y = 1x² + 0x + 0</p>
+                </div>
+                
+                <div class="special-functions">
+                    <button id="reset-btn">重置参数</button>
+                    <button id="grid-toggle">切换网格</button>
+                </div>
+            </section>
+            
+            <section class="graph-area">
+                <canvas id="parabola-canvas" width="600" height="600"></canvas>
+                <div class="coordinates-info">
+                    <p>鼠标位置: <span id="mouse-coords">(0, 0)</span></p>
+                    <p>顶点坐标: <span id="vertex-coords">(0, 0)</span></p>
+                    <p>对称轴: <span id="axis-info">x = 0</span></p>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>初中数学教学工具 - 抛物线曲线演示</p>
+        </footer>
+    </div>
+    
+    <script src="parabola-script.js"></script>
+</body>
+</html>
