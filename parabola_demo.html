@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抛物线曲线演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .canvas-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        canvas {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .control-group h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .control-item {
+            margin-bottom: 15px;
+        }
+
+        .control-item label {
+            display: block;
+            margin-bottom: 5px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .control-item input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .control-item input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .value-display {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .equation {
+            text-align: center;
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+        }
+
+        .equation-formula {
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .info-panel {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        .info-panel h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .info-panel p {
+            color: #424242;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>抛物线曲线演示</h1>
+        
+        <div class="equation">
+            抛物线方程: <span class="equation-formula" id="equationDisplay">y = ax² + bx + c</span>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="parabolaCanvas" width="800" height="600"></canvas>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <h3>参数调节</h3>
+                <div class="control-item">
+                    <label>参数 a: <span class="value-display" id="aValue">1</span></label>
+                    <input type="range" id="aSlider" min="-5" max="5" step="0.1" value="1">
+                </div>
+                <div class="control-item">
+                    <label>参数 b: <span class="value-display" id="bValue">0</span></label>
+                    <input type="range" id="bSlider" min="-10" max="10" step="0.1" value="0">
+                </div>
+                <div class="control-item">
+                    <label>参数 c: <span class="value-display" id="cValue">0</span></label>
+                    <input type="range" id="cSlider" min="-10" max="10" step="0.1" value="0">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>显示设置</h3>
+                <div class="control-item">
+                    <label>坐标轴范围: <span class="value-display" id="rangeValue">20</span></label>
+                    <input type="range" id="rangeSlider" min="10" max="50" step="5" value="20">
+                </div>
+                <div class="control-item">
+                    <label>曲线粗细: <span class="value-display" id="thicknessValue">3</span></label>
+                    <input type="range" id="thicknessSlider" min="1" max="8" step="1" value="3">
+                </div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button onclick="resetParameters()">重置参数</button>
+            <button onclick="animateParabola()">动画演示</button>
+            <button onclick="showVertex()">显示顶点</button>
+            <button onclick="showRoots()">显示根点</button>
+            <button onclick="toggleGrid()">切换网格</button>
+        </div>
+
+        <div class="info-panel">
+            <h4>抛物线知识</h4>
+            <p>
+                抛物线是二次函数的图像，一般形式为 y = ax² + bx + c。<br>
+                • 当 a > 0 时，抛物线开口向上<br>
+                • 当 a < 0 时，抛物线开口向下<br>
+                • 顶点坐标: (-b/2a, (4ac-b²)/4a)<br>
+                • 对称轴: x = -b/2a
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('parabolaCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let a = 1, b = 0, c = 0;
+        let range = 20;
+        let thickness = 3;
+        let showGrid = true;
+        let animationId = null;
+        let animationTime = 0;
+
+        // 初始化控件
+        function initControls() {
+            const aSlider = document.getElementById('aSlider');
+            const bSlider = document.getElementById('bSlider');
+            const cSlider = document.getElementById('cSlider');
+            const rangeSlider = document.getElementById('rangeSlider');
+            const thicknessSlider = document.getElementById('thicknessSlider');
+
+            aSlider.addEventListener('input', (e) => {
+                a = parseFloat(e.target.value);
+                document.getElementById('aValue').textContent = a;
+                updateEquation();
+                draw();
+            });
+
+            bSlider.addEventListener('input', (e) => {
+                b = parseFloat(e.target.value);
+                document.getElementById('bValue').textContent = b;
+                updateEquation();
+                draw();
+            });
+
+            cSlider.addEventListener('input', (e) => {
+                c = parseFloat(e.target.value);
+                document.getElementById('cValue').textContent = c;
+                updateEquation();
+                draw();
+            });
+
+            rangeSlider.addEventListener('input', (e) => {
+                range = parseInt(e.target.value);
+                document.getElementById('rangeValue').textContent = range;
+                draw();
+            });
+
+            thicknessSlider.addEventListener('input', (e) => {
+                thickness = parseInt(e.target.value);
+                document.getElementById('thicknessValue').textContent = thickness;
+                draw();
+            });
+        }
+
+        // 更新方程显示
+        function updateEquation() {
+            let equation = 'y = ';
+            
+            if (a !== 0) {
+                if (a === 1) equation += 'x²';
+                else if (a === -1) equation += '-x²';
+                else equation += a + 'x²';
+            }
+            
+            if (b !== 0) {
+                if (b > 0 && equation !== 'y = ') equation += ' + ';
+                else if (b < 0) equation += ' - ';
+                
+                const absB = Math.abs(b);
+                if (absB === 1) equation += 'x';
+                else equation += absB + 'x';
+            }
+            
+            if (c !== 0) {
+                if (c > 0 && equation !== 'y = ') equation += ' + ';
+                else if (c < 0) equation += ' - ';
+                equation += Math.abs(c);
+            }
+            
+            if (equation === 'y = ') equation += '0';
+            
+            document.getElementById('equationDisplay').textContent = equation;
+        }
+
+        // 坐标转换
+        function toCanvasCoords(x, y) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const scale = canvas.width / (range * 2);
+            
+            return {
+                x: centerX + x * scale,
+                y: centerY - y * scale
+            };
+        }
+
+        function fromCanvasCoords(canvasX, canvasY) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const scale = canvas.width / (range * 2);
+            
+            return {
+                x: (canvasX - centerX) / scale,
+                y: -(canvasY - centerY) / scale
+            };
+        }
+
+        // 绘制网格
+        function drawGrid() {
+            if (!showGrid) return;
+            
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            
+            const scale = canvas.width / (range * 2);
+            const step = scale;
+            
+            // 垂直网格线
+            for (let x = 0; x < canvas.width; x += step) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            // 水平网格线
+            for (let y = 0; y < canvas.height; y += step) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        // 绘制坐标轴
+        function drawAxes() {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            
+            // X轴
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+            
+            // Y轴
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            
+            // 刻度和标签
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            const scale = canvas.width / (range * 2);
+            
+            // X轴刻度
+            for (let i = -range; i <= range; i += 5) {
+                if (i !== 0) {
+                    const x = canvas.width / 2 + i * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(x, canvas.height / 2 - 5);
+                    ctx.lineTo(x, canvas.height / 2 + 5);
+                    ctx.stroke();
+                    ctx.fillText(i, x, canvas.height / 2 + 10);
+                }
+            }
+            
+            // Y轴刻度
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let i = -range; i <= range; i += 5) {
+                if (i !== 0) {
+                    const y = canvas.height / 2 - i * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(canvas.width / 2 - 5, y);
+                    ctx.lineTo(canvas.width / 2 + 5, y);
+                    ctx.stroke();
+                    ctx.fillText(i, canvas.width / 2 - 10, y);
+                }
+            }
+            
+            // 原点
+            ctx.fillText('0', canvas.width / 2 - 10, canvas.height / 2 + 15);
+        }
+
+        // 绘制抛物线
+        function drawParabola() {
+            if (a === 0) return;
+            
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = thickness;
+            ctx.beginPath();
+            
+            let firstPoint = true;
+            const scale = canvas.width / (range * 2);
+            
+            for (let canvasX = 0; canvasX <= canvas.width; canvasX += 1) {
+                const { x, y } = fromCanvasCoords(canvasX, 0);
+                const parabolaY = a * x * x + b * x + c;
+                const canvasY = toCanvasCoords(0, parabolaY).y;
+                
+                if (canvasY >= 0 && canvasY <= canvas.height) {
+                    if (firstPoint) {
+                        ctx.moveTo(canvasX, canvasY);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(canvasX, canvasY);
+                    }
+                }
+            }
+            
+            ctx.stroke();
+        }
+
+        // 绘制顶点
+        function drawVertex() {
+            if (a === 0) return;
+            
+            const vertexX = -b / (2 * a);
+            const vertexY = a * vertexX * vertexX + b * vertexX + c;
+            const { x, y } = toCanvasCoords(vertexX, vertexY);
+            
+            ctx.fillStyle = '#ff4444';
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(`顶点(${vertexX.toFixed(2)}, ${vertexY.toFixed(2)})`, x + 10, y - 10);
+        }
+
+        // 绘制根点
+        function drawRoots() {
+            if (a === 0) return;
+            
+            const discriminant = b * b - 4 * a * c;
+            
+            if (discriminant >= 0) {
+                const sqrtDiscriminant = Math.sqrt(discriminant);
+                const root1 = (-b + sqrtDiscriminant) / (2 * a);
+                const root2 = (-b - sqrtDiscriminant) / (2 * a);
+                
+                ctx.fillStyle = '#44ff44';
+                
+                // 根点1
+                const { x: x1, y: y1 } = toCanvasCoords(root1, 0);
+                ctx.beginPath();
+                ctx.arc(x1, y1, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // 根点2
+                const { x: x2, y: y2 } = toCanvasCoords(root2, 0);
+                ctx.beginPath();
+                ctx.arc(x2, y2, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // 标签
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'top';
+                
+                if (Math.abs(root1 - root2) < 0.01) {
+                    ctx.fillText(`根: ${root1.toFixed(2)}`, x1 + 10, y1 + 10);
+                } else {
+                    ctx.fillText(`根1: ${root1.toFixed(2)}`, x1 + 10, y1 + 10);
+                    ctx.fillText(`根2: ${root2.toFixed(2)}`, x2 + 10, y2 + 10);
+                }
+            }
+        }
+
+        // 主绘制函数
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            drawAxes();
+            drawParabola();
+        }
+
+        // 重置参数
+        function resetParameters() {
+            a = 1;
+            b = 0;
+            c = 0;
+            
+            document.getElementById('aSlider').value = a;
+            document.getElementById('bSlider').value = b;
+            document.getElementById('cSlider').value = c;
+            
+            document.getElementById('aValue').textContent = a;
+            document.getElementById('bValue').textContent = b;
+            document.getElementById('cValue').textContent = c;
+            
+            updateEquation();
+            draw();
+        }
+
+        // 动画演示
+        function animateParabola() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+                return;
+            }
+            
+            const originalA = a;
+            let direction = 1;
+            
+            function animate() {
+                animationTime += 0.02;
+                a = originalA + Math.sin(animationTime) * 2;
+                
+                document.getElementById('aSlider').value = a;
+                document.getElementById('aValue').textContent = a.toFixed(1);
+                
+                updateEquation();
+                draw();
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+
+        // 显示顶点
+        function showVertex() {
+            draw();
+            drawVertex();
+        }
+
+        // 显示根点
+        function showRoots() {
+            draw();
+            drawRoots();
+        }
+
+        // 切换网格
+        function toggleGrid() {
+            showGrid = !showGrid;
+            draw();
+        }
+
+        // 初始化
+        function init() {
+            initControls();
+            updateEquation();
+            draw();
+        }
+
+        // 启动应用
+        init();
+    </script>
+</body>
+</html>
