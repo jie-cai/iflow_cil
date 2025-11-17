@@ -1,370 +1,345 @@
-class Gomoku {
-    constructor() {
-        this.boardSize = 15;
-        this.cellSize = 32;
-        this.board = [];
-        this.currentPlayer = 'black';
-        this.gameOver = false;
-        this.moveHistory = []; // 存储落子历史
-        this.hintPosition = null; // 存储提示位置
-        this.canvas = document.getElementById('game-board');
-        this.ctx = this.canvas.getContext('2d');
-        
-        this.initBoard();
-        this.drawBoard();
-        this.bindEvents();
-        this.updatePlayerInfo();
-    }
+// 东方明珠塔宣传动画交互脚本
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化动画控制
+    initAnimations();
+    initInteractions();
+    initScrollEffects();
+});
+
+function initAnimations() {
+    // 添加动态灯光效果
+    const lights = document.querySelectorAll('.light');
+    lights.forEach((light, index) => {
+        setInterval(() => {
+            light.style.animationDelay = `${Math.random() * 3}s`;
+        }, 3000 + index * 500);
+    });
     
-    initBoard() {
-        for (let i = 0; i < this.boardSize; i++) {
-            this.board[i] = [];
-            for (let j = 0; j < this.boardSize; j++) {
-                this.board[i][j] = null;
-            }
-        }
-    }
+    // 添加星空背景
+    createStarField();
     
-    drawBoard() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // 绘制棋盘背景
-        this.ctx.fillStyle = '#dcb35c';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // 绘制网格线
-        this.ctx.strokeStyle = '#000';
-        this.ctx.lineWidth = 1;
-        
-        for (let i = 0; i < this.boardSize; i++) {
-            // 垂直线
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.cellSize/2 + i * this.cellSize, this.cellSize/2);
-            this.ctx.lineTo(this.cellSize/2 + i * this.cellSize, this.canvas.height - this.cellSize/2);
-            this.ctx.stroke();
-            
-            // 水平线
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.cellSize/2, this.cellSize/2 + i * this.cellSize);
-            this.ctx.lineTo(this.canvas.width - this.cellSize/2, this.cellSize/2 + i * this.cellSize);
-            this.ctx.stroke();
-        }
-        
-        // 绘制提示位置
-        if (this.hintPosition) {
-            this.drawHint(this.hintPosition.x, this.hintPosition.y);
-        }
-        
-        // 绘制已下的棋子
-        for (let i = 0; i < this.boardSize; i++) {
-            for (let j = 0; j < this.boardSize; j++) {
-                if (this.board[i][j]) {
-                    this.drawChessman(i, j, this.board[i][j]);
-                }
-            }
-        }
-    }
-    
-    drawChessman(x, y, color) {
-        const centerX = this.cellSize/2 + x * this.cellSize;
-        const centerY = this.cellSize/2 + y * this.cellSize;
-        const radius = this.cellSize/2 - 2;
-        
-        // 绘制棋子
-        this.ctx.beginPath();
-        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        
-        // 设置渐变效果
-        const gradient = this.ctx.createRadialGradient(
-            centerX - radius/3, centerY - radius/3, radius/8,
-            centerX, centerY, radius
-        );
-        
-        if (color === 'black') {
-            gradient.addColorStop(0, '#666');
-            gradient.addColorStop(1, '#000');
-        } else {
-            gradient.addColorStop(0, '#fff');
-            gradient.addColorStop(1, '#ccc');
-        }
-        
-        this.ctx.fillStyle = gradient;
-        this.ctx.fill();
-        this.ctx.strokeStyle = '#000';
-        this.ctx.stroke();
-    }
-    
-    drawHint(x, y) {
-        const centerX = this.cellSize/2 + x * this.cellSize;
-        const centerY = this.cellSize/2 + y * this.cellSize;
-        const radius = this.cellSize/2 - 2;
-        
-        // 绘制半透明提示棋子
-        this.ctx.beginPath();
-        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        
-        // 设置渐变效果
-        const gradient = this.ctx.createRadialGradient(
-            centerX - radius/3, centerY - radius/3, radius/8,
-            centerX, centerY, radius
-        );
-        
-        if (this.currentPlayer === 'black') {
-            gradient.addColorStop(0, 'rgba(102, 102, 102, 0.5)');
-            gradient.addColorStop(1, 'rgba(0, 0, 0, 0.5)');
-        } else {
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
-            gradient.addColorStop(1, 'rgba(204, 204, 204, 0.5)');
-        }
-        
-        this.ctx.fillStyle = gradient;
-        this.ctx.fill();
-        this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
-        this.ctx.lineWidth = 2;
-        this.ctx.stroke();
-    }
-    
-    bindEvents() {
-        this.canvas.addEventListener('click', (e) => {
-            if (this.gameOver) return;
-            
-            const rect = this.canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const gridX = Math.round((x - this.cellSize/2) / this.cellSize);
-            const gridY = Math.round((y - this.cellSize/2) / this.cellSize);
-            
-            if (gridX >= 0 && gridX < this.boardSize && gridY >= 0 && gridY < this.boardSize) {
-                this.playChess(gridX, gridY);
-            }
-        });
-        
-        document.getElementById('restart-btn').addEventListener('click', () => {
-            this.restart();
-        });
-        
-        document.getElementById('undo-btn').addEventListener('click', () => {
-            this.undoMove();
-        });
-        
-        document.getElementById('hint-btn').addEventListener('click', () => {
-            this.showHint();
-        });
-    }
-    
-    playChess(x, y) {
-        if (this.board[x][y] !== null) return;
-        
-        this.board[x][y] = this.currentPlayer;
-        this.moveHistory.push({x, y, player: this.currentPlayer});
-        this.hintPosition = null; // 清除提示
-        this.drawBoard();
-        
-        if (this.checkWin(x, y)) {
-            this.gameOver = true;
+    // 添加云朵动画
+    createClouds();
+}
+
+function initInteractions() {
+    // 添加塔体点击交互
+    const tower = document.querySelector('.tower');
+    if (tower) {
+        tower.addEventListener('click', function() {
+            this.style.animation = 'none';
             setTimeout(() => {
-                alert(`恭喜！${this.currentPlayer === 'black' ? '黑棋' : '白棋'}获胜！`);
-            }, 100);
-            return;
-        }
-        
-        this.currentPlayer = this.currentPlayer === 'black' ? 'white' : 'black';
-        this.updatePlayerInfo();
+                this.style.animation = 'float 6s ease-in-out infinite, pulse 1s ease-out';
+            }, 10);
+            
+            showTowerInfo();
+        });
     }
     
-    checkWin(x, y) {
-        const directions = [
-            [1, 0],   // 水平
-            [0, 1],   // 垂直
-            [1, 1],   // 对角线
-            [1, -1]   // 反对角线
-        ];
+    // 添加信息卡片悬停效果
+    const infoCards = document.querySelectorAll('.info-card');
+    infoCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px) scale(1.05)';
+            this.style.boxShadow = '0 15px 40px rgba(0, 0, 0, 0.3)';
+        });
         
-        const color = this.board[x][y];
-        if (!color) return false;
-        
-        for (let [dx, dy] of directions) {
-            let count = 1;
-            
-            // 正方向计数
-            for (let i = 1; i < 5; i++) {
-                const nx = x + dx * i;
-                const ny = y + dy * i;
-                if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize && this.board[nx][ny] === color) {
-                    count++;
-                } else {
-                    break;
-                }
-            }
-            
-            // 反方向计数
-            for (let i = 1; i < 5; i++) {
-                const nx = x - dx * i;
-                const ny = y - dy * i;
-                if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize && this.board[nx][ny] === color) {
-                    count++;
-                } else {
-                    break;
-                }
-            }
-            
-            if (count >= 5) return true;
-        }
-        
-        return false;
-    }
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            this.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.2)';
+        });
+    });
     
-    updatePlayerInfo() {
-        document.getElementById('current-player').textContent = this.currentPlayer === 'black' ? '黑棋' : '白棋';
-    }
-    
-    undoMove() {
-        if (this.moveHistory.length === 0 || this.gameOver) return;
+    // 添加夜景切换功能
+    createDayNightToggle();
+}
+
+function initScrollEffects() {
+    // 添加滚动视差效果
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const skyline = document.querySelector('.skyline');
+        const tower = document.querySelector('.tower-container');
         
-        const lastMove = this.moveHistory.pop();
-        this.board[lastMove.x][lastMove.y] = null;
-        this.currentPlayer = lastMove.player;
-        this.hintPosition = null;
-        this.drawBoard();
-        this.updatePlayerInfo();
-    }
-    
-    showHint() {
-        if (this.gameOver) return;
-        
-        // 简单的提示逻辑：找到一个可以形成连线的好位置
-        const bestMove = this.findBestMove();
-        if (bestMove) {
-            this.hintPosition = bestMove;
-            this.drawBoard();
-            
-            // 3秒后自动清除提示
-            setTimeout(() => {
-                this.hintPosition = null;
-                this.drawBoard();
-            }, 3000);
+        if (skyline && tower) {
+            skyline.style.transform = `translateY(${scrolled * 0.5}px)`;
+            tower.style.transform = `translateX(-50%) translateY(${-scrolled * 0.3}px)`;
         }
-    }
+    });
     
-    findBestMove() {
-        // 优先级：1.自己能赢 2.阻止对手赢 3.形成长连线 4.随机位置
-        
-        // 检查自己是否能赢
-        for (let i = 0; i < this.boardSize; i++) {
-            for (let j = 0; j < this.boardSize; j++) {
-                if (this.board[i][j] === null) {
-                    this.board[i][j] = this.currentPlayer;
-                    if (this.checkWin(i, j)) {
-                        this.board[i][j] = null;
-                        return {x: i, y: j};
-                    }
-                    this.board[i][j] = null;
-                }
+    // 添加元素进入视口动画
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
             }
-        }
-        
-        // 检查是否需要阻止对手赢
-        const opponent = this.currentPlayer === 'black' ? 'white' : 'black';
-        for (let i = 0; i < this.boardSize; i++) {
-            for (let j = 0; j < this.boardSize; j++) {
-                if (this.board[i][j] === null) {
-                    this.board[i][j] = opponent;
-                    if (this.checkWin(i, j)) {
-                        this.board[i][j] = null;
-                        return {x: i, y: j};
-                    }
-                    this.board[i][j] = null;
-                }
-            }
-        }
-        
-        // 寻找能形成长连线的好位置
-        let bestScore = -1;
-        let bestMove = null;
-        
-        for (let i = 0; i < this.boardSize; i++) {
-            for (let j = 0; j < this.boardSize; j++) {
-                if (this.board[i][j] === null) {
-                    const score = this.evaluatePosition(i, j, this.currentPlayer);
-                    if (score > bestScore) {
-                        bestScore = score;
-                        bestMove = {x: i, y: j};
-                    }
-                }
-            }
-        }
-        
-        return bestMove;
-    }
+        });
+    }, { threshold: 0.1 });
     
-    evaluatePosition(x, y, player) {
-        let score = 0;
-        const directions = [[1, 0], [0, 1], [1, 1], [1, -1]];
-        
-        for (let [dx, dy] of directions) {
-            let count = 1;
-            let openEnds = 0;
-            
-            // 正方向
-            for (let i = 1; i < 5; i++) {
-                const nx = x + dx * i;
-                const ny = y + dy * i;
-                if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize) {
-                    if (this.board[nx][ny] === player) {
-                        count++;
-                    } else if (this.board[nx][ny] === null) {
-                        openEnds++;
-                        break;
-                    } else {
-                        break;
-                    }
-                }
-            }
-            
-            // 反方向
-            for (let i = 1; i < 5; i++) {
-                const nx = x - dx * i;
-                const ny = y - dy * i;
-                if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize) {
-                    if (this.board[nx][ny] === player) {
-                        count++;
-                    } else if (this.board[nx][ny] === null) {
-                        openEnds++;
-                        break;
-                    } else {
-                        break;
-                    }
-                }
-            }
-            
-            // 根据连线长度和开放端计算分数
-            if (count >= 4) score += 1000;
-            else if (count === 3 && openEnds === 2) score += 500;
-            else if (count === 3 && openEnds === 1) score += 100;
-            else if (count === 2 && openEnds === 2) score += 50;
-            else if (count === 2 && openEnds === 1) score += 10;
-        }
-        
-        // 优先考虑中心位置
-        const centerDistance = Math.abs(x - 7) + Math.abs(y - 7);
-        score += (14 - centerDistance);
-        
-        return score;
-    }
+    document.querySelectorAll('.info-card').forEach(card => {
+        observer.observe(card);
+    });
+}
+
+function createStarField() {
+    const body = document.body;
+    const starCount = 100;
     
-    restart() {
-        this.initBoard();
-        this.currentPlayer = 'black';
-        this.gameOver = false;
-        this.moveHistory = [];
-        this.hintPosition = null;
-        this.drawBoard();
-        this.updatePlayerInfo();
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.position = 'fixed';
+        star.style.width = Math.random() * 3 + 'px';
+        star.style.height = star.style.width;
+        star.style.backgroundColor = '#fff';
+        star.style.borderRadius = '50%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.opacity = Math.random() * 0.8 + 0.2;
+        star.style.animation = `twinkle ${Math.random() * 3 + 2}s ease-in-out infinite`;
+        star.style.animationDelay = Math.random() * 3 + 's';
+        star.style.pointerEvents = 'none';
+        star.style.zIndex = '1';
+        
+        body.appendChild(star);
     }
 }
 
-// 页面加载完成后初始化游戏
-window.addEventListener('DOMContentLoaded', () => {
-    new Gomoku();
+function createClouds() {
+    const skyline = document.querySelector('.skyline');
+    if (!skyline) return;
+    
+    for (let i = 0; i < 3; i++) {
+        const cloud = document.createElement('div');
+        cloud.className = 'cloud';
+        cloud.style.position = 'absolute';
+        cloud.style.width = Math.random() * 100 + 100 + 'px';
+        cloud.style.height = Math.random() * 40 + 40 + 'px';
+        cloud.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+        cloud.style.borderRadius = '50%';
+        cloud.style.top = Math.random() * 200 + 'px';
+        cloud.style.left = Math.random() * 100 + '%';
+        cloud.style.animation = `cloudFloat ${Math.random() * 20 + 20}s linear infinite`;
+        cloud.style.zIndex = '2';
+        
+        skyline.appendChild(cloud);
+    }
+    
+    // 添加云朵动画样式
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes cloudFloat {
+            from {
+                transform: translateX(-200px);
+            }
+            to {
+                transform: translateX(calc(100vw + 200px));
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function createDayNightToggle() {
+    const header = document.querySelector('.header');
+    if (!header) return;
+    
+    const toggle = document.createElement('button');
+    toggle.textContent = '🌙 夜景模式';
+    toggle.style.position = 'absolute';
+    toggle.style.top = '20px';
+    toggle.style.right = '20px';
+    toggle.style.padding = '10px 15px';
+    toggle.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+    toggle.style.border = '1px solid rgba(255, 255, 255, 0.3)';
+    toggle.style.borderRadius = '20px';
+    toggle.style.color = '#fff';
+    toggle.style.cursor = 'pointer';
+    toggle.style.fontSize = '14px';
+    toggle.style.transition = 'all 0.3s ease';
+    toggle.style.backdropFilter = 'blur(5px)';
+    
+    toggle.addEventListener('click', function() {
+        document.body.classList.toggle('night-mode');
+        if (document.body.classList.contains('night-mode')) {
+            this.textContent = '☀️ 日景模式';
+            document.body.style.background = 'linear-gradient(to bottom, #0c1445 0%, #183059 70%, #2c3e50 100%)';
+        } else {
+            this.textContent = '🌙 夜景模式';
+            document.body.style.background = 'linear-gradient(to bottom, #87CEEB 0%, #FFA500 70%, #FF6347 100%)';
+        }
+    });
+    
+    header.appendChild(toggle);
+}
+
+function showTowerInfo() {
+    // 创建信息弹窗
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '50%';
+    modal.style.left = '50%';
+    modal.style.transform = 'translate(-50%, -50%)';
+    modal.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+    modal.style.padding = '30px';
+    modal.style.borderRadius = '15px';
+    modal.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+    modal.style.zIndex = '1000';
+    modal.style.maxWidth = '500px';
+    modal.style.textAlign = 'center';
+    modal.style.backdropFilter = 'blur(10px)';
+    
+    modal.innerHTML = `
+        <h2 style="color: #333; margin-bottom: 15px;">东方明珠塔</h2>
+        <p style="color: #666; line-height: 1.6; margin-bottom: 15px;">
+            东方明珠广播电视塔，简称"东方明珠"，位于上海市浦东新区陆家嘴，
+            始建于1991年，于1994年建成。塔高468米，是上海的标志性文化景观之一。
+        </p>
+        <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">
+            塔内有太空舱、旋转餐厅、上海城市历史发展陈列馆等景观和设施，
+            是集观光、餐饮、购物、娱乐、住宿、广播电视发射等多功能于一体的综合性旅游文化景点。
+        </p>
+        <button id="close-modal" style="
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        ">关闭</button>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // 添加关闭功能
+    document.getElementById('close-modal').addEventListener('click', function() {
+        modal.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => {
+            document.body.removeChild(modal);
+        }, 300);
+    });
+    
+    // 添加淡入动画
+    modal.style.animation = 'fadeIn 0.3s ease-out';
+    
+    // 添加动画样式
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// 添加页面加载完成后的特效
+window.addEventListener('load', function() {
+    // 延迟显示塔体
+    const tower = document.querySelector('.tower-container');
+    if (tower) {
+        tower.style.opacity = '0';
+        tower.style.transform = 'translateX(-50%) translateY(50px)';
+        setTimeout(() => {
+            tower.style.transition = 'all 2s ease-out';
+            tower.style.opacity = '1';
+            tower.style.transform = 'translateX(-50%) translateY(0)';
+        }, 500);
+    }
+    
+    // 添加烟花效果（可选）
+    setTimeout(() => {
+        createFireworks();
+    }, 3000);
 });
+
+function createFireworks() {
+    const container = document.querySelector('.skyline');
+    if (!container) return;
+    
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+            const firework = document.createElement('div');
+            firework.style.position = 'absolute';
+            firework.style.width = '4px';
+            firework.style.height = '4px';
+            firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            firework.style.borderRadius = '50%';
+            firework.style.left = Math.random() * 100 + '%';
+            firework.style.top = '100px';
+            firework.style.boxShadow = `0 0 10px currentColor`;
+            firework.style.zIndex = '10';
+            
+            container.appendChild(firework);
+            
+            // 烟花上升动画
+            firework.animate([
+                { transform: 'translateY(0)', opacity: 1 },
+                { transform: 'translateY(-200px)', opacity: 0 }
+            ], {
+                duration: 1500,
+                easing: 'ease-out'
+            }).onfinish = () => {
+                container.removeChild(firework);
+                createExplosion(firework.style.left, firework.style.top);
+            };
+        }, i * 300);
+    }
+}
+
+function createExplosion(x, y) {
+    const container = document.querySelector('.skyline');
+    if (!container) return;
+    
+    const particleCount = 20;
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'absolute';
+        particle.style.width = '2px';
+        particle.style.height = '2px';
+        particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        particle.style.borderRadius = '50%';
+        particle.style.left = x;
+        particle.style.top = y;
+        particle.style.zIndex = '10';
+        
+        container.appendChild(particle);
+        
+        const angle = (Math.PI * 2 * i) / particleCount;
+        const velocity = Math.random() * 50 + 30;
+        
+        particle.animate([
+            { 
+                transform: 'translate(0, 0) scale(1)', 
+                opacity: 1 
+            },
+            { 
+                transform: `translate(${Math.cos(angle) * velocity}px, ${Math.sin(angle) * velocity}px) scale(0)`, 
+                opacity: 0 
+            }
+        ], {
+            duration: 1000,
+            easing: 'ease-out'
+        }).onfinish = () => {
+            container.removeChild(particle);
+        };
+    }
+}
