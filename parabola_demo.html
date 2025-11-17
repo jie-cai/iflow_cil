@@ -3,271 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>抛物线曲线演示 - 初中数学教学</title>
+    <title>抛物线演示</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Microsoft YaHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
         }
-
+        
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            color: white;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .subtitle {
-            color: rgba(255,255,255,0.9);
-            font-size: 1.2em;
-        }
-
-        .main-content {
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .canvas-container {
-            flex: 2;
-            min-width: 400px;
             background: white;
-            border-radius: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-
-        .controls {
-            flex: 1;
-            min-width: 300px;
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
+        
         canvas {
             border: 1px solid #ddd;
-            display: block;
-            margin: 0 auto;
-            cursor: crosshair;
         }
-
+        
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
         .control-group {
-            margin-bottom: 20px;
-        }
-
-        .control-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .slider-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
         }
-
-        input[type="range"] {
-            flex: 1;
-            height: 6px;
-            background: #ddd;
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #667eea;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #667eea;
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
-        .value-display {
-            min-width: 50px;
-            text-align: center;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .formula-display {
-            background: #f8f9fa;
-            border: 2px solid #667eea;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 1.2em;
+        
+        label {
             font-weight: bold;
             color: #333;
         }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
+        
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-
+        
         button {
-            flex: 1;
-            padding: 10px 15px;
-            background: #667eea;
+            background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 8px;
+            padding: 8px 15px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1em;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #5a67d8;
-        }
-
-        .info-panel {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f0f8ff;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .info-panel h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .info-panel p {
-            line-height: 1.6;
-            color: #333;
-        }
-
-        .vertex-info {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 15px;
-            padding: 10px;
-            background: #e8f4fd;
-            border-radius: 8px;
-        }
-
-        .vertex-item {
-            text-align: center;
-        }
-
-        .vertex-label {
             font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
         }
-
-        .vertex-value {
-            color: #333;
+        
+        button:hover {
+            background: #45a049;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>抛物线曲线演示</h1>
-            <p class="subtitle">初中数学教学工具 - 探索二次函数的图像特征</p>
-        </header>
-
-        <div class="main-content">
-            <div class="canvas-container">
-                <canvas id="parabolaCanvas" width="600" height="600"></canvas>
+        <canvas id="parabolaCanvas" width="800" height="600"></canvas>
+        <div class="controls">
+            <div class="control-group">
+                <label>a:</label>
+                <input type="number" id="paramA" value="0.5" step="0.1">
             </div>
-
-            <div class="controls">
-                <div class="formula-display" id="formulaDisplay">
-                    y = ax² + bx + c
-                </div>
-
-                <div class="control-group">
-                    <label for="aSlider">参数 a (开口方向和大小)</label>
-                    <div class="slider-container">
-                        <input type="range" id="aSlider" min="-2" max="2" step="0.1" value="1">
-                        <span class="value-display" id="aValue">1.0</span>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label for="bSlider">参数 b (左右移动)</label>
-                    <div class="slider-container">
-                        <input type="range" id="bSlider" min="-5" max="5" step="0.1" value="0">
-                        <span class="value-display" id="bValue">0.0</span>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label for="cSlider">参数 c (上下移动)</label>
-                    <div class="slider-container">
-                        <input type="range" id="cSlider" min="-5" max="5" step="0.1" value="0">
-                        <span class="value-display" id="cValue">0.0</span>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button onclick="resetParabola()">重置</button>
-                    <button onclick="animateParabola()">动画演示</button>
-                </div>
-
-                <div class="vertex-info">
-                    <div class="vertex-item">
-                        <div class="vertex-label">顶点坐标</div>
-                        <div class="vertex-value" id="vertexCoords">(0, 0)</div>
-                    </div>
-                    <div class="vertex-item">
-                        <div class="vertex-label">对称轴</div>
-                        <div class="vertex-value" id="axisOfSymmetry">x = 0</div>
-                    </div>
-                </div>
-
-                <div class="info-panel">
-                    <h3>知识点</h3>
-                    <p>
-                        <strong>抛物线标准方程：</strong>y = ax² + bx + c<br>
-                        <strong>顶点坐标：</strong>(-b/2a, -Δ/4a)<br>
-                        <strong>对称轴：</strong>x = -b/2a<br>
-                        <strong>开口方向：</strong>a > 0 向上，a < 0 向下
-                    </p>
-                </div>
+            <div class="control-group">
+                <label>b:</label>
+                <input type="number" id="paramB" value="0" step="0.1">
             </div>
+            <div class="control-group">
+                <label>c:</label>
+                <input type="number" id="paramC" value="-2" step="0.1">
+            </div>
+            <button onclick="drawGraph()">绘制</button>
         </div>
     </div>
 
@@ -275,258 +91,115 @@
         const canvas = document.getElementById('parabolaCanvas');
         const ctx = canvas.getContext('2d');
         
-        // 参数控制
-        let a = 1, b = 0, c = 0;
-        let animationId = null;
-        let animationProgress = 0;
-        
-        // 坐标系设置
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const scale = 20; // 每单位的像素数
-        
-        // 获取滑块元素
-        const aSlider = document.getElementById('aSlider');
-        const bSlider = document.getElementById('bSlider');
-        const cSlider = document.getElementById('cSlider');
-        const aValue = document.getElementById('aValue');
-        const bValue = document.getElementById('bValue');
-        const cValue = document.getElementById('cValue');
-        const formulaDisplay = document.getElementById('formulaDisplay');
-        const vertexCoords = document.getElementById('vertexCoords');
-        const axisOfSymmetry = document.getElementById('axisOfSymmetry');
-        
-        // 事件监听器
-        aSlider.addEventListener('input', updateParabola);
-        bSlider.addEventListener('input', updateParabola);
-        cSlider.addEventListener('input', updateParabola);
-        
-        // 更新抛物线参数
-        function updateParabola() {
-            a = parseFloat(aSlider.value);
-            b = parseFloat(bSlider.value);
-            c = parseFloat(cSlider.value);
+        function drawGraph() {
+            // 获取参数
+            const a = parseFloat(document.getElementById('paramA').value);
+            const b = parseFloat(document.getElementById('paramB').value);
+            const c = parseFloat(document.getElementById('paramC').value);
             
-            aValue.textContent = a.toFixed(1);
-            bValue.textContent = b.toFixed(1);
-            cValue.textContent = c.toFixed(1);
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            updateFormula();
-            updateVertexInfo();
-            draw();
-        }
-        
-        // 更新公式显示
-        function updateFormula() {
-            let formula = 'y = ';
-            
-            if (a !== 0) {
-                if (a === 1) formula += 'x²';
-                else if (a === -1) formula += '-x²';
-                else formula += a + 'x²';
-            }
-            
-            if (b !== 0) {
-                if (b > 0 && a !== 0) formula += ' + ';
-                if (b === 1) formula += 'x';
-                else if (b === -1) formula += '-x';
-                else formula += b + 'x';
-            }
-            
-            if (c !== 0) {
-                if (c > 0 && (a !== 0 || b !== 0)) formula += ' + ';
-                formula += c;
-            }
-            
-            if (a === 0 && b === 0 && c === 0) formula += '0';
-            
-            formulaDisplay.textContent = formula;
-        }
-        
-        // 更新顶点信息
-        function updateVertexInfo() {
-            if (a !== 0) {
-                const vertexX = -b / (2 * a);
-                const vertexY = a * vertexX * vertexX + b * vertexX + c;
-                vertexCoords.textContent = `(${vertexX.toFixed(2)}, ${vertexY.toFixed(2)})`;
-                axisOfSymmetry.textContent = `x = ${vertexX.toFixed(2)}`;
-            } else {
-                vertexCoords.textContent = '无顶点';
-                axisOfSymmetry.textContent = '无对称轴';
-            }
-        }
-        
-        // 绘制坐标系
-        function drawCoordinateSystem() {
-            ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 1;
-            
-            // 绘制网格
-            for (let i = 0; i <= canvas.width; i += scale) {
-                ctx.beginPath();
-                ctx.moveTo(i, 0);
-                ctx.lineTo(i, canvas.height);
-                ctx.stroke();
-            }
-            
-            for (let i = 0; i <= canvas.height; i += scale) {
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(canvas.width, i);
-                ctx.stroke();
-            }
+            // 设置坐标系参数
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const scale = 40; // 像素/单位
             
             // 绘制坐标轴
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
+            drawAxes(centerX, centerY, scale);
             
-            // x轴
+            // 绘制抛物线
+            drawParabola(a, b, c, centerX, centerY, scale);
+        }
+        
+        function drawAxes(centerX, centerY, scale) {
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 1;
+            
+            // 绘制x轴
             ctx.beginPath();
             ctx.moveTo(0, centerY);
             ctx.lineTo(canvas.width, centerY);
             ctx.stroke();
             
-            // y轴
+            // 绘制y轴
             ctx.beginPath();
             ctx.moveTo(centerX, 0);
             ctx.lineTo(centerX, canvas.height);
             ctx.stroke();
             
-            // 绘制刻度和标签
-            ctx.fillStyle = '#666';
+            // 绘制刻度和刻度值
+            ctx.fillStyle = 'black';
             ctx.font = '12px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
             
             // x轴刻度
             for (let i = -Math.floor(centerX / scale); i <= Math.floor(centerX / scale); i++) {
                 if (i !== 0) {
                     const x = centerX + i * scale;
+                    
+                    // 刻度线
                     ctx.beginPath();
                     ctx.moveTo(x, centerY - 5);
                     ctx.lineTo(x, centerY + 5);
                     ctx.stroke();
-                    ctx.fillText(i.toString(), x, centerY + 10);
+                    
+                    // 刻度值
+                    ctx.fillText(i.toString(), x - 5, centerY + 20);
                 }
             }
             
             // y轴刻度
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
             for (let i = -Math.floor(centerY / scale); i <= Math.floor(centerY / scale); i++) {
                 if (i !== 0) {
                     const y = centerY - i * scale;
+                    
+                    // 刻度线
                     ctx.beginPath();
                     ctx.moveTo(centerX - 5, y);
                     ctx.lineTo(centerX + 5, y);
                     ctx.stroke();
-                    ctx.fillText(i.toString(), centerX + 10, y);
+                    
+                    // 刻度值
+                    ctx.fillText(i.toString(), centerX + 10, y + 5);
                 }
             }
             
-            // 原点标签
-            ctx.fillText('O', centerX + 10, centerY + 15);
+            // 原点标记
+            ctx.fillText('O', centerX + 10, centerY + 20);
         }
         
-        // 绘制抛物线
-        function drawParabola() {
-            if (a === 0) return; // 不是抛物线
-            
-            ctx.strokeStyle = '#667eea';
-            ctx.lineWidth = 3;
+        function drawParabola(a, b, c, centerX, centerY, scale) {
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 1.5;
             ctx.beginPath();
             
             let firstPoint = true;
-            for (let px = 0; px < canvas.width; px++) {
-                const x = (px - centerX) / scale;
+            
+            // 计算抛物线的x范围
+            const xMin = -centerX / scale;
+            const xMax = centerX / scale;
+            const step = 0.1; // 步长
+            
+            for (let x = xMin; x <= xMax; x += step) {
                 const y = a * x * x + b * x + c;
-                const py = centerY - y * scale;
+                const pixelX = centerX + x * scale;
+                const pixelY = centerY - y * scale;
                 
-                if (py >= -100 && py <= canvas.height + 100) {
-                    if (firstPoint) {
-                        ctx.moveTo(px, py);
-                        firstPoint = false;
-                    } else {
-                        ctx.lineTo(px, py);
-                    }
-                }
-            }
-            ctx.stroke();
-            
-            // 绘制顶点
-            if (a !== 0) {
-                const vertexX = -b / (2 * a);
-                const vertexY = a * vertexX * vertexX + b * vertexX + c;
-                const vertexPx = centerX + vertexX * scale;
-                const vertexPy = centerY - vertexY * scale;
-                
-                ctx.fillStyle = '#ff4757';
-                ctx.beginPath();
-                ctx.arc(vertexPx, vertexPy, 6, 0, 2 * Math.PI);
-                ctx.fill();
-                
-                // 绘制对称轴
-                ctx.strokeStyle = 'rgba(255, 71, 87, 0.5)';
-                ctx.lineWidth = 1;
-                ctx.setLineDash([5, 5]);
-                ctx.beginPath();
-                ctx.moveTo(vertexPx, 0);
-                ctx.lineTo(vertexPx, canvas.height);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-        }
-        
-        // 主绘制函数
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawCoordinateSystem();
-            drawParabola();
-        }
-        
-        // 重置函数
-        function resetParabola() {
-            aSlider.value = 1;
-            bSlider.value = 0;
-            cSlider.value = 0;
-            updateParabola();
-        }
-        
-        // 动画演示
-        function animateParabola() {
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
-                return;
-            }
-            
-            animationProgress = 0;
-            
-            function animate() {
-                animationProgress += 0.02;
-                
-                a = Math.sin(animationProgress) * 1.5;
-                b = Math.cos(animationProgress * 1.5) * 3;
-                c = Math.sin(animationProgress * 0.7) * 2;
-                
-                aSlider.value = a;
-                bSlider.value = b;
-                cSlider.value = c;
-                
-                updateParabola();
-                
-                if (animationProgress < Math.PI * 2) {
-                    animationId = requestAnimationFrame(animate);
+                if (firstPoint) {
+                    ctx.moveTo(pixelX, pixelY);
+                    firstPoint = false;
                 } else {
-                    animationId = null;
+                    ctx.lineTo(pixelX, pixelY);
                 }
             }
             
-            animate();
+            ctx.stroke();
         }
         
-        // 初始化
-        updateParabola();
+        // 页面加载时绘制初始图形
+        window.onload = function() {
+            drawGraph();
+        };
     </script>
 </body>
 </html>
