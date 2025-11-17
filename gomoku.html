@@ -10,16 +10,13 @@
     <div class="container">
         <h1>五子棋游戏</h1>
         <div class="game-info">
-            <div class="current-player">当前玩家: <span id="current-player">黑棋</span></div>
-            <div class="game-controls">
-                <button id="undo-btn">悔棋</button>
-                <button id="hint-btn">提示</button>
-                <button id="restart-btn">重新开始</button>
-            </div>
+            <div class="current-player">当前玩家: <span id="current-player">黑子</span></div>
+            <button id="restart-btn">重新开始</button>
         </div>
         <div class="board-container">
-            <canvas id="game-board" width="480" height="480"></canvas>
+            <div id="board"></div>
         </div>
+        <div class="game-status" id="game-status"></div>
     </div>
     <script src="script.js"></script>
 </body>

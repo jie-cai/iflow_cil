@@ -365,6 +365,130 @@ class Gomoku {
 }
 
 // 页面加载完成后初始化游戏
-window.addEventListener('DOMContentLoaded', () => {
-    new Gomoku();
+// 五子棋游戏逻辑
+document.addEventListener('DOMContentLoaded', function() {
+    const board = document.getElementById('board');
+    const currentPlayerElement = document.getElementById('current-player');
+    const gameStatusElement = document.getElementById('game-status');
+    const restartBtn = document.getElementById('restart-btn');
+    
+    const BOARD_SIZE = 15;
+    let currentPlayer = 'black';
+    let gameBoard = [];
+    let gameOver = false;
+    
+    // 初始化游戏
+    function initGame() {
+        board.innerHTML = '';
+        gameBoard = [];
+        gameOver = false;
+        currentPlayer = 'black';
+        currentPlayerElement.textContent = '黑子';
+        gameStatusElement.textContent = '';
+        
+        // 创建棋盘
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            gameBoard[i] = [];
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                gameBoard[i][j] = null;
+                
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.addEventListener('click', handleCellClick);
+                board.appendChild(cell);
+            }
+        }
+    }
+    
+    // 处理单元格点击
+    function handleCellClick(event) {
+        if (gameOver) return;
+        
+        const row = parseInt(event.target.dataset.row);
+        const col = parseInt(event.target.dataset.col);
+        
+        if (gameBoard[row][col] !== null) return;
+        
+        // 放置棋子
+        gameBoard[row][col] = currentPlayer;
+        const piece = document.createElement('div');
+        piece.className = `piece ${currentPlayer}`;
+        event.target.appendChild(piece);
+        
+        // 检查是否获胜
+        if (checkWin(row, col)) {
+            gameOver = true;
+            gameStatusElement.textContent = `${currentPlayer === 'black' ? '黑子' : '白子'}获胜！`;
+            return;
+        }
+        
+        // 检查是否平局
+        if (checkDraw()) {
+            gameOver = true;
+            gameStatusElement.textContent = '平局！';
+            return;
+        }
+        
+        // 切换玩家
+        currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+        currentPlayerElement.textContent = currentPlayer === 'black' ? '黑子' : '白子';
+    }
+    
+    // 检查获胜条件
+    function checkWin(row, col) {
+        const directions = [
+            [0, 1],  // 水平
+            [1, 0],  // 垂直
+            [1, 1],  // 对角线1
+            [1, -1]  // 对角线2
+        ];
+        
+        for (const [dx, dy] of directions) {
+            let count = 1;
+            
+            // 正方向检查
+            let r = row + dx;
+            let c = col + dy;
+            while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && gameBoard[r][c] === currentPlayer) {
+                count++;
+                r += dx;
+                c += dy;
+            }
+            
+            // 反方向检查
+            r = row - dx;
+            c = col - dy;
+            while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && gameBoard[r][c] === currentPlayer) {
+                count++;
+                r -= dx;
+                c -= dy;
+            }
+            
+            if (count >= 5) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    // 检查平局
+    function checkDraw() {
+        for (let i = 0; i < BOARD_SIZE; i++) {
+            for (let j = 0; j < BOARD_SIZE; j++) {
+                if (gameBoard[i][j] === null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    
+    // 重新开始游戏
+    restartBtn.addEventListener('click', initGame);
+    
+    // 初始化游戏
+    initGame();
 });
