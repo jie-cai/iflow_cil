@@ -7,11 +7,17 @@ class Gomoku {
         this.gameOver = false;
         this.canvas = document.getElementById('game-board');
         this.ctx = this.canvas.getContext('2d');
+        this.moveHistory = [];
+        this.lastMove = null;
+        this.moveCount = 0;
+        this.startTime = Date.now();
+        this.gameTimer = null;
         
         this.initBoard();
         this.drawBoard();
         this.bindEvents();
         this.updatePlayerInfo();
+        this.startTimer();
     }
     
     initBoard() {
@@ -78,13 +84,23 @@ class Gomoku {
             gradient.addColorStop(1, '#000');
         } else {
             gradient.addColorStop(0, '#fff');
-            gradient.addColorStop(1, '#ccc');
+            gradient.addColorStop(1, '#ddd');
         }
         
         this.ctx.fillStyle = gradient;
         this.ctx.fill();
-        this.ctx.strokeStyle = '#000';
+        this.ctx.strokeStyle = color === 'black' ? '#000' : '#999';
+        this.ctx.lineWidth = 1;
         this.ctx.stroke();
+        
+        // 标记最后一步
+        if (this.lastMove && this.lastMove.x === x && this.lastMove.y === y) {
+            this.ctx.strokeStyle = '#ff4444';
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.arc(centerX, centerY, radius + 3, 0, Math.PI * 2);
+            this.ctx.stroke();
+        }
     }
     
     bindEvents() {
@@ -109,15 +125,27 @@ class Gomoku {
     }
     
     playChess(x, y) {
-        if (this.board[x][y] !== null) return;
+        if (this.board[x][y] !== null || this.gameOver) return;
         
         this.board[x][y] = this.currentPlayer;
+        this.moveHistory.push({x, y, player: this.currentPlayer});
+        this.lastMove = {x, y};
+        this.moveCount++;
+        
+        // 添加落子音效
+        this.playSound();
+        
         this.drawBoard();
+        this.updateStats();
         
         if (this.checkWin(x, y)) {
             this.gameOver = true;
+            this.stopTimer();
             setTimeout(() => {
-                alert(`恭喜！${this.currentPlayer === 'black' ? '黑棋' : '白棋'}获胜！`);
+                this.showWinAnimation();
+                setTimeout(() => {
+                    alert(`恭喜！${this.currentPlayer === 'black' ? '黑棋' : '白棋'}获胜！\n总步数：${this.moveCount}\n游戏时间：${this.formatTime(Date.now() - this.startTime)}`);
+                }, 500);
             }, 100);
             return;
         }
@@ -176,8 +204,77 @@ class Gomoku {
         this.initBoard();
         this.currentPlayer = 'black';
         this.gameOver = false;
+        this.moveHistory = [];
+        this.lastMove = null;
+        this.moveCount = 0;
+        this.startTime = Date.now();
+        this.stopTimer();
+        this.startTimer();
         this.drawBoard();
         this.updatePlayerInfo();
+        this.updateStats();
+    }
+    
+    playSound() {
+        // 创建简单的音效
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+    }
+    
+    showWinAnimation() {
+        // 胜利动画效果
+        const originalTitle = document.querySelector('h1').textContent;
+        const winText = '🎉 游戏结束 🎉';
+        let count = 0;
+        
+        const animate = () => {
+            if (count < 6) {
+                document.querySelector('h1').textContent = count % 2 === 0 ? winText : originalTitle;
+                count++;
+                setTimeout(animate, 300);
+            } else {
+                document.querySelector('h1').textContent = originalTitle;
+            }
+        };
+        animate();
+    }
+    
+    startTimer() {
+        this.gameTimer = setInterval(() => {
+            const elapsed = Date.now() - this.startTime;
+            document.getElementById('game-time').textContent = this.formatTime(elapsed);
+        }, 1000);
+    }
+    
+    stopTimer() {
+        if (this.gameTimer) {
+            clearInterval(this.gameTimer);
+            this.gameTimer = null;
+        }
+    }
+    
+    formatTime(milliseconds) {
+        const seconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+    
+    updateStats() {
+        document.getElementById('move-count').textContent = this.moveCount;
     }
 }
 
