@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>二次函数曲线 y=ax²+bx+c</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .controls label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .controls input {
+            margin-bottom: 10px;
+            width: 80px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <label>参数 a: <input type="number" id="paramA" value="1" step="0.1"></label>
+        <label>参数 b: <input type="number" id="paramB" value="0" step="0.1"></label>
+        <label>参数 c: <input type="number" id="paramC" value="0" step="0.1"></label>
+        <button onclick="updateCurve()">更新曲线</button>
+    </div>
+    <canvas id="graphCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置画布尺寸
+        canvas.width = 800;
+        canvas.height = 600;
+        
+        // 坐标系参数
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const scale = 40; // 每单位的像素数
+        
+        // 函数参数
+        let a = 1, b = 0, c = 0;
+        
+        // 绘制坐标轴
+        function drawAxes() {
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 1; // 1磅粗细
+            
+            // x轴
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.stroke();
+            
+            // y轴
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.stroke();
+            
+            // 绘制刻度和标签
+            drawTicks();
+        }
+        
+        // 绘制刻度
+        function drawTicks() {
+            ctx.fillStyle = '#000000';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            // x轴刻度
+            for (let x = -Math.floor(centerX / scale); x <= Math.floor(centerX / scale); x++) {
+                if (x !== 0) {
+                    const pixelX = centerX + x * scale;
+                    
+                    // 刻度线
+                    ctx.beginPath();
+                    ctx.moveTo(pixelX, centerY - 5);
+                    ctx.lineTo(pixelX, centerY + 5);
+                    ctx.stroke();
+                    
+                    // 刻度值
+                    ctx.fillText(x.toString(), pixelX, centerY + 10);
+                }
+            }
+            
+            // y轴刻度
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let y = -Math.floor(centerY / scale); y <= Math.floor(centerY / scale); y++) {
+                if (y !== 0) {
+                    const pixelY = centerY - y * scale;
+                    
+                    // 刻度线
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - 5, pixelY);
+                    ctx.lineTo(centerX + 5, pixelY);
+                    ctx.stroke();
+                    
+                    // 刻度值
+                    ctx.fillText(y.toString(), centerX - 10, pixelY);
+                }
+            }
+            
+            // 原点标签
+            ctx.fillText('0', centerX - 10, centerY + 15);
+        }
+        
+        // 绘制二次函数曲线
+        function drawQuadraticCurve() {
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 1.5; // 1.5磅粗细
+            ctx.beginPath();
+            
+            let firstPoint = true;
+            
+            // 遍历画布宽度，计算每个x对应的y值
+            for (let pixelX = 0; pixelX <= canvas.width; pixelX++) {
+                // 将像素坐标转换为数学坐标
+                const x = (pixelX - centerX) / scale;
+                
+                // 计算y值
+                const y = a * x * x + b * x + c;
+                
+                // 将数学坐标转换为像素坐标
+                const pixelY = centerY - y * scale;
+                
+                // 只绘制在画布范围内的点
+                if (pixelY >= -100 && pixelY <= canvas.height + 100) {
+                    if (firstPoint) {
+                        ctx.moveTo(pixelX, pixelY);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(pixelX, pixelY);
+                    }
+                }
+            }
+            
+            ctx.stroke();
+        }
+        
+        // 更新曲线
+        function updateCurve() {
+            a = parseFloat(document.getElementById('paramA').value);
+            b = parseFloat(document.getElementById('paramB').value);
+            c = parseFloat(document.getElementById('paramC').value);
+            
+            redraw();
+        }
+        
+        // 重绘整个图形
+        function redraw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawAxes();
+            drawQuadraticCurve();
+        }
+        
+        // 初始绘制
+        redraw();
+    </script>
+</body>
+</html>
