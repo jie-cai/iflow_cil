@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛博朋克飞机大战</title>
+    <link rel="stylesheet" href="cyberpunk_shooter.css">
+</head>
+<body>
+    <div class="cyber-container">
+        <div class="cyber-header">
+            <h1 class="cyber-title">CYBER PUNK<span class="glow">⚔️</span>SHOOTER</h1>
+            <div class="game-stats">
+                <div class="stat-item">分数: <span id="score">0</span></div>
+                <div class="stat-item">生命: <span id="lives">3</span></div>
+                <div class="stat-item">等级: <span id="level">1</span></div>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            <div class="cyber-overlay"></div>
+        </div>
+        
+        <div class="controls">
+            <p>使用 ← → 控制飞机，空格键发射子弹</p>
+            <button id="startBtn" class="cyber-button">开始游戏</button>
+            <button id="pauseBtn" class="cyber-button">暂停</button>
+        </div>
+        
+        <div id="gameOver" class="game-over hidden">
+            <h2>游戏结束</h2>
+            <p>最终分数: <span id="finalScore">0</span></p>
+            <button id="restartBtn" class="cyber-button">重新开始</button>
+        </div>
+    </div>
+    
+    <script src="cyberpunk_shooter.js"></script>
+</body>
+</html>
