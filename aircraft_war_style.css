@@ -1,0 +1,217 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    overflow: hidden;
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 800px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.score, .lives {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00ff88;
+}
+
+.game-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff6b6b;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#gameCanvas {
+    border: 3px solid #4ecdc4;
+    border-radius: 10px;
+    background: linear-gradient(to bottom, #87ceeb, #4682b4);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.game-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 800px;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+}
+
+.instructions {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.instructions p {
+    margin: 5px 0;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+#startBtn {
+    background: #4ecdc4;
+    color: white;
+}
+
+#startBtn:hover {
+    background: #45b7aa;
+    transform: translateY(-2px);
+}
+
+#pauseBtn {
+    background: #ffa726;
+    color: white;
+}
+
+#pauseBtn:hover {
+    background: #fb8c00;
+    transform: translateY(-2px);
+}
+
+#restartBtn {
+    background: #ef5350;
+    color: white;
+}
+
+#restartBtn:hover {
+    background: #e53935;
+    transform: translateY(-2px);
+}
+
+.game-over {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.game-over h2 {
+    font-size: 32px;
+    color: #ff6b6b;
+    margin-bottom: 20px;
+}
+
+.game-over p {
+    font-size: 18px;
+    margin-bottom: 25px;
+}
+
+#playAgainBtn {
+    background: #4ecdc4;
+    color: white;
+    padding: 15px 30px;
+    font-size: 16px;
+}
+
+#playAgainBtn:hover {
+    background: #45b7aa;
+    transform: translateY(-2px);
+}
+
+.hidden {
+    display: none;
+}
+
+/* 游戏元素样式 */
+.player-aircraft {
+    fill: #4ecdc4;
+    stroke: #45b7aa;
+    stroke-width: 2;
+}
+
+.enemy-aircraft {
+    fill: #ff6b6b;
+    stroke: #e53935;
+    stroke-width: 2;
+}
+
+.bullet {
+    fill: #ffff00;
+    stroke: #ffd700;
+    stroke-width: 1;
+}
+
+.enemy-bullet {
+    fill: #ff4444;
+    stroke: #cc0000;
+    stroke-width: 1;
+}
+
+.explosion {
+    fill: #ffa726;
+    stroke: #fb8c00;
+    stroke-width: 2;
+}
+
+/* 响应式设计 */
+@media (max-width: 850px) {
+    .game-container {
+        padding: 10px;
+    }
+    
+    .game-header, .game-controls {
+        width: 100%;
+        max-width: 600px;
+    }
+    
+    #gameCanvas {
+        width: 100%;
+        max-width: 600px;
+        height: 450px;
+    }
+    
+    .game-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
