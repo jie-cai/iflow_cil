@@ -48,15 +48,16 @@ class CyberPunkShooter {
     }
     
     setupEventListeners() {
-        // 键盘事件
+        // 键盘事件 - 使用更精确的控制
         document.addEventListener('keydown', (e) => {
-            this.keys[e.key] = true;
-            
-            // 空格键发射子弹
-            if (e.key === ' ' && this.gameRunning && !this.gamePaused) {
+            if (e.key === ' ') {
                 e.preventDefault();
-                this.shoot();
             }
+            // 防止重复按键
+            if (['ArrowLeft', 'ArrowRight', 'a', 'd', ' '].includes(e.key)) {
+                e.preventDefault();
+            }
+            this.keys[e.key] = true;
         });
         
         document.addEventListener('keyup', (e) => {
@@ -101,25 +102,30 @@ class CyberPunkShooter {
     }
     
     shoot() {
-        this.bullets.push({
-            x: this.player.x + this.player.width / 2 - 2,
-            y: this.player.y,
-            width: 4,
-            height: 15,
-            color: '#ff0077'
-        });
-        
-        // 添加射击粒子效果
-        for (let i = 0; i < 5; i++) {
-            this.particles.push({
-                x: this.player.x + this.player.width / 2,
+        // 添加射击冷却，防止子弹过多
+        if (!this.lastShotTime || Date.now() - this.lastShotTime > 150) { // 150ms冷却
+            this.bullets.push({
+                x: this.player.x + this.player.width / 2 - 2,
                 y: this.player.y,
-                size: Math.random() * 3 + 1,
-                speedX: (Math.random() - 0.5) * 4,
-                speedY: Math.random() * 2,
-                color: '#ff0077',
-                life: 20
+                width: 4,
+                height: 15,
+                color: '#ff0077'
             });
+            
+            // 添加射击粒子效果
+            for (let i = 0; i < 5; i++) {
+                this.particles.push({
+                    x: this.player.x + this.player.width / 2,
+                    y: this.player.y,
+                    size: Math.random() * 3 + 1,
+                    speedX: (Math.random() - 0.5) * 4,
+                    speedY: Math.random() * 2,
+                    color: '#ff0077',
+                    life: 20
+                });
+            }
+            
+            this.lastShotTime = Date.now();
         }
     }
     
@@ -128,8 +134,11 @@ class CyberPunkShooter {
         
         if (this.enemyCounter >= this.enemySpawnRate) {
             const size = Math.random() * 30 + 30;
+            // 确保敌人不会超出画布边界
+            const xPosition = Math.max(0, Math.min(this.width - size, Math.random() * this.width));
+            
             this.enemies.push({
-                x: Math.random() * (this.width - size),
+                x: xPosition,
                 y: -size,
                 width: size,
                 height: size,
@@ -137,8 +146,8 @@ class CyberPunkShooter {
                 color: '#ff0077'
             });
             
-            // 随着等级增加，敌人出现更频繁
-            this.enemySpawnRate = Math.max(20, 60 - this.level * 2);
+            // 随着等级增加，敌人出现更频繁，但不会无限加速
+            this.enemySpawnRate = Math.max(15, 60 - this.level * 3);
             this.enemyCounter = 0;
         }
     }
@@ -263,7 +272,8 @@ class CyberPunkShooter {
     
     levelUp() {
         this.level++;
-        this.enemySpeed += 0.2;
+        // 控制难度增长，避免过快
+        this.enemySpeed = Math.min(5, this.enemySpeed + 0.2);
         this.updateStats();
     }
     
@@ -433,6 +443,26 @@ class CyberPunkShooter {
         this.updateParticles();
         this.checkCollisions();
         this.spawnEnemy();
+        
+        // 限制游戏中的对象数量，防止性能下降
+        this.limitObjects();
+    }
+    
+    limitObjects() {
+        // 限制子弹数量
+        if (this.bullets.length > 100) {
+            this.bullets.splice(0, this.bullets.length - 100);
+        }
+        
+        // 限制敌人数量
+        if (this.enemies.length > 50) {
+            this.enemies.splice(0, this.enemies.length - 50);
+        }
+        
+        // 限制粒子数量
+        if (this.particles.length > 300) {
+            this.particles.splice(0, this.particles.length - 300);
+        }
     }
     
     startGameLoop() {
