@@ -2,9 +2,17 @@
 class CyberPunkShooter {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
+        if (!this.canvas) {
+            console.error('游戏画布未找到');
+            return;
+        }
         this.ctx = this.canvas.getContext('2d');
         this.width = this.canvas.width;
         this.height = this.canvas.height;
+        
+        // 预创建渐变用于背景，避免每次渲染都创建
+        this.backgroundGradient = null;
+        this.createBackgroundGradient();
         
         // 游戏状态
         this.gameRunning = false;
@@ -38,8 +46,15 @@ class CyberPunkShooter {
         
         // 控制键状态
         this.keys = {};
+        this.keysPressed = new Set(); // 防止重复按键
         
         this.init();
+    }
+    
+    createBackgroundGradient() {
+        this.backgroundGradient = this.ctx.createLinearGradient(0, 0, 0, this.height);
+        this.backgroundGradient.addColorStop(0, '#0a0a0a');
+        this.backgroundGradient.addColorStop(1, '#1a0a1e');
     }
     
     init() {
@@ -50,16 +65,21 @@ class CyberPunkShooter {
     setupEventListeners() {
         // 键盘事件
         document.addEventListener('keydown', (e) => {
-            this.keys[e.key] = true;
-            
-            // 空格键发射子弹
-            if (e.key === ' ' && this.gameRunning && !this.gamePaused) {
-                e.preventDefault();
-                this.shoot();
+            // 防止重复按键
+            if (!this.keysPressed.has(e.key)) {
+                this.keysPressed.add(e.key);
+                this.keys[e.key] = true;
+                
+                // 空格键发射子弹
+                if (e.key === ' ' && this.gameRunning && !this.gamePaused) {
+                    e.preventDefault();
+                    this.shoot();
+                }
             }
         });
         
         document.addEventListener('keyup', (e) => {
+            this.keysPressed.delete(e.key);
             this.keys[e.key] = false;
         });
         
@@ -69,7 +89,9 @@ class CyberPunkShooter {
         });
         
         document.getElementById('pauseBtn').addEventListener('click', () => {
-            this.togglePause();
+            if (this.gameRunning) {
+                this.togglePause();
+            }
         });
         
         document.getElementById('restartBtn').addEventListener('click', () => {
@@ -275,6 +297,7 @@ class CyberPunkShooter {
     
     gameOver() {
         this.gameRunning = false;
+        this.gamePaused = false; // 确保游戏不处于暂停状态
         document.getElementById('finalScore').textContent = this.score;
         document.getElementById('gameOver').classList.remove('hidden');
     }
@@ -373,21 +396,19 @@ class CyberPunkShooter {
     drawParticles() {
         for (const particle of this.particles) {
             this.ctx.fillStyle = particle.color;
-            this.ctx.globalAlpha = particle.life / 30;
+            // 确保alpha值在有效范围内
+            const alpha = Math.max(0, Math.min(1, particle.life / 30));
+            this.ctx.globalAlpha = alpha;
             this.ctx.beginPath();
             this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
             this.ctx.fill();
-            this.ctx.globalAlpha = 1;
         }
+        this.ctx.globalAlpha = 1; // 重置alpha值
     }
     
     drawBackground() {
-        // 渐变背景
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.height);
-        gradient.addColorStop(0, '#0a0a0a');
-        gradient.addColorStop(1, '#1a0a1e');
-        
-        this.ctx.fillStyle = gradient;
+        // 使用预创建的渐变背景
+        this.ctx.fillStyle = this.backgroundGradient;
         this.ctx.fillRect(0, 0, this.width, this.height);
         
         // 添加网格线效果
@@ -395,19 +416,18 @@ class CyberPunkShooter {
         this.ctx.lineWidth = 1;
         const gridSize = 40;
         
+        // 优化网格绘制 - 使用单个路径
+        this.ctx.beginPath();
         for (let x = 0; x < this.width; x += gridSize) {
-            this.ctx.beginPath();
             this.ctx.moveTo(x, 0);
             this.ctx.lineTo(x, this.height);
-            this.ctx.stroke();
         }
         
         for (let y = 0; y < this.height; y += gridSize) {
-            this.ctx.beginPath();
             this.ctx.moveTo(0, y);
             this.ctx.lineTo(this.width, y);
-            this.ctx.stroke();
         }
+        this.ctx.stroke();
     }
     
     render() {
