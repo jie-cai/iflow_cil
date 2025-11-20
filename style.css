@@ -14,6 +14,8 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
 }
 
 h1 {
@@ -21,16 +23,81 @@ h1 {
     margin-top: 0;
 }
 
+h3 {
+    color: #555;
+    margin: 15px 0 10px 0;
+}
+
+/* 游戏设置区域 */
+.game-mode-section, .board-size-section, .win-rule-section {
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.mode-selection, .size-selection, .rule-selection {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.ai-difficulty {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #eef5ff;
+    border-radius: 5px;
+}
+
+.ai-difficulty label {
+    margin-right: 10px;
+}
+
+label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+input[type="radio"], input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+#custom-rule-input {
+    margin-top: 10px;
+    text-align: center;
+}
+
+#custom-win-count {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
 .game-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    gap: 10px;
+}
+
+.game-status {
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
 }
 
 .game-controls {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .game-controls button {
@@ -42,6 +109,7 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    min-width: 80px;
 }
 
 .game-controls button:hover {
@@ -64,9 +132,26 @@ h1 {
     background-color: #0b7dda;
 }
 
+#save-btn {
+    background-color: #9c27b0;
+}
+
+#save-btn:hover {
+    background-color: #7b1fa2;
+}
+
+#load-btn {
+    background-color: #607d8b;
+}
+
+#load-btn:hover {
+    background-color: #455a64;
+}
+
 .current-player {
     font-size: 18px;
     font-weight: bold;
+    color: #333;
 }
 
 #restart-btn {
@@ -77,6 +162,7 @@ h1 {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    min-width: auto;
 }
 
 #restart-btn:hover {
@@ -88,4 +174,116 @@ h1 {
     border: 2px solid #333;
     border-radius: 5px;
     background-color: #dcb35c;
+    margin: 20px 0;
+}
+
+/* 游戏统计 */
+.game-stats {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    text-align: center;
+}
+
+.stat-item {
+    padding: 10px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.stat-label {
+    font-weight: bold;
+    color: #555;
+}
+
+/* 对话框样式 */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.dialog-box {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    max-width: 90%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.dialog-content {
+    margin-top: 15px;
+}
+
+#game-name {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.dialog-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.dialog-buttons button {
+    padding: 8px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.dialog-buttons button#cancel-btn {
+    background-color: #f44336;
+}
+
+.dialog-buttons button:hover {
+    opacity: 0.9;
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+        margin: 5px;
+    }
+    
+    .game-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .game-controls {
+        width: 100%;
+    }
+    
+    .mode-selection, .size-selection, .rule-selection {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
