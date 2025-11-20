@@ -21,16 +21,62 @@ h1 {
     margin-top: 0;
 }
 
+.game-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+.option-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.option-group label {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.option-group select {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
 .game-info {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
     margin-bottom: 20px;
+}
+
+.game-timer {
+    font-size: 16px;
+    font-weight: bold;
+    color: #d32f2f;
+}
+
+.game-stats {
+    font-size: 16px;
+    font-weight: bold;
+    color: #388e3c;
 }
 
 .game-controls {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
+    justify-content: center;
 }
 
 .game-controls button {
@@ -64,6 +110,14 @@ h1 {
     background-color: #0b7dda;
 }
 
+#replay-btn {
+    background-color: #9c27b0;
+}
+
+#replay-btn:hover {
+    background-color: #7b1fa2;
+}
+
 .current-player {
     font-size: 18px;
     font-weight: bold;
@@ -88,4 +142,34 @@ h1 {
     border: 2px solid #333;
     border-radius: 5px;
     background-color: #dcb35c;
+}
+
+.replay-controls {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.replay-controls button {
+    padding: 8px 15px;
+    font-size: 14px;
+    background-color: #607d8b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.replay-controls button:hover {
+    background-color: #455a64;
+}
+
+#replay-exit {
+    background-color: #f44336;
+}
+
+#replay-exit:hover {
+    background-color: #d32f2f;
 }
