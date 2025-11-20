@@ -1,3 +1,25 @@
+:root {
+    --primary-color: #4CAF50;
+    --primary-dark: #45a049;
+    --secondary-color: #ff9800;
+    --secondary-dark: #e68900;
+    --accent-color: #2196F3;
+    --accent-dark: #0b7dda;
+    --replay-color: #9c27b0;
+    --replay-dark: #7b1fa2;
+    --danger-color: #f44336;
+    --danger-dark: #d32f2f;
+    --info-color: #607d8b;
+    --info-dark: #455a64;
+    --win-color: #388e3c;
+    --lose-color: #d32f2f;
+    --bg-color: #f0f0f0;
+    --container-bg: white;
+    --board-bg: #dcb35c;
+    --text-color: #333;
+    --border-color: #ccc;
+}
+
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -5,19 +27,23 @@ body {
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
+    background-color: var(--bg-color);
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 .container {
     text-align: center;
-    background-color: white;
+    background-color: var(--container-bg);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    width: auto;
 }
 
 h1 {
-    color: #333;
+    color: var(--text-color);
     margin-top: 0;
 }
 
@@ -46,9 +72,10 @@ h1 {
 
 .option-group select {
     padding: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 3px;
     font-size: 14px;
+    min-width: 80px;
 }
 
 .game-info {
@@ -63,13 +90,13 @@ h1 {
 .game-timer {
     font-size: 16px;
     font-weight: bold;
-    color: #d32f2f;
+    color: var(--lose-color);
 }
 
 .game-stats {
     font-size: 16px;
     font-weight: bold;
-    color: #388e3c;
+    color: var(--win-color);
 }
 
 .game-controls {
@@ -82,40 +109,41 @@ h1 {
 .game-controls button {
     padding: 8px 15px;
     font-size: 14px;
-    background-color: #4CAF50;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    min-width: 80px;
 }
 
 .game-controls button:hover {
-    background-color: #45a049;
+    background-color: var(--primary-dark);
 }
 
 #undo-btn {
-    background-color: #ff9800;
+    background-color: var(--secondary-color);
 }
 
 #undo-btn:hover {
-    background-color: #e68900;
+    background-color: var(--secondary-dark);
 }
 
 #hint-btn {
-    background-color: #2196F3;
+    background-color: var(--accent-color);
 }
 
 #hint-btn:hover {
-    background-color: #0b7dda;
+    background-color: var(--accent-dark);
 }
 
 #replay-btn {
-    background-color: #9c27b0;
+    background-color: var(--replay-color);
 }
 
 #replay-btn:hover {
-    background-color: #7b1fa2;
+    background-color: var(--replay-dark);
 }
 
 .current-player {
@@ -126,7 +154,7 @@ h1 {
 #restart-btn {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #4CAF50;
+    background-color: var(--primary-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -134,14 +162,15 @@ h1 {
 }
 
 #restart-btn:hover {
-    background-color: #45a049;
+    background-color: var(--primary-dark);
 }
 
 .board-container {
     display: inline-block;
-    border: 2px solid #333;
+    border: 2px solid var(--text-color);
     border-radius: 5px;
-    background-color: #dcb35c;
+    background-color: var(--board-bg);
+    margin: 10px 0;
 }
 
 .replay-controls {
@@ -149,12 +178,13 @@ h1 {
     display: flex;
     justify-content: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .replay-controls button {
     padding: 8px 15px;
     font-size: 14px;
-    background-color: #607d8b;
+    background-color: var(--info-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -163,13 +193,68 @@ h1 {
 }
 
 .replay-controls button:hover {
-    background-color: #455a64;
+    background-color: var(--info-dark);
 }
 
 #replay-exit {
-    background-color: #f44336;
+    background-color: var(--danger-color);
 }
 
 #replay-exit:hover {
-    background-color: #d32f2f;
+    background-color: var(--danger-dark);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .game-options {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .game-info {
+        flex-direction: column;
+    }
+    
+    .game-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .replay-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .container {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+    }
+    
+    .current-player {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        padding: 10px;
+    }
+    
+    .game-controls button,
+    .replay-controls button {
+        width: 100%;
+        margin: 2px 0;
+    }
+    
+    .board-container {
+        transform: scale(0.9);
+        transform-origin: top center;
+    }
 }

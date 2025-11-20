@@ -35,51 +35,42 @@ class Gomoku {
     
     initGameSettings() {
         // 初始化游戏设置
-        document.getElementById('game-mode').addEventListener('change', (e) => {
-            this.gameMode = e.target.value;
-        });
+        const settings = [
+            { id: 'game-mode', handler: (e) => { this.gameMode = e.target.value; } },
+            { id: 'ai-difficulty', handler: (e) => { this.aiDifficulty = e.target.value; } },
+            { id: 'first-player', handler: (e) => {
+                this.firstPlayer = e.target.value;
+                if (!this.gameOver && this.moveHistory.length === 0) {
+                    this.currentPlayer = e.target.value;
+                    this.updatePlayerInfo();
+                }
+            }},
+            { id: 'time-limit', handler: (e) => {
+                this.timeLimit = parseInt(e.target.value);
+                this.resetTimer();
+            }},
+            { id: 'undo-limit', handler: (e) => {
+                this.undoLimit = parseInt(e.target.value);
+                this.undoCount = 0; // 重置悔棋计数
+            }}
+        ];
+
+        for (const setting of settings) {
+            document.getElementById(setting.id).addEventListener('change', setting.handler);
+        }
         
-        document.getElementById('ai-difficulty').addEventListener('change', (e) => {
-            this.aiDifficulty = e.target.value;
-        });
-        
-        document.getElementById('first-player').addEventListener('change', (e) => {
-            this.firstPlayer = e.target.value;
-            if (!this.gameOver && this.moveHistory.length === 0) {
-                this.currentPlayer = e.target.value;
-                this.updatePlayerInfo();
-            }
-        });
-        
-        document.getElementById('time-limit').addEventListener('change', (e) => {
-            this.timeLimit = parseInt(e.target.value);
-            this.resetTimer();
-        });
-        
-        document.getElementById('undo-limit').addEventListener('change', (e) => {
-            this.undoLimit = parseInt(e.target.value);
-            this.undoCount = 0; // 重置悔棋计数
-        });
-        
-        document.getElementById('replay-btn').addEventListener('click', () => {
-            this.startReplay();
-        });
-        
-        document.getElementById('replay-prev').addEventListener('click', () => {
-            this.replayPrev();
-        });
-        
-        document.getElementById('replay-play').addEventListener('click', () => {
-            this.replayPlay();
-        });
-        
-        document.getElementById('replay-next').addEventListener('click', () => {
-            this.replayNext();
-        });
-        
-        document.getElementById('replay-exit').addEventListener('click', () => {
-            this.exitReplay();
-        });
+        // 回放控制按钮事件
+        const replayControls = [
+            { id: 'replay-btn', handler: () => this.startReplay() },
+            { id: 'replay-prev', handler: () => this.replayPrev() },
+            { id: 'replay-play', handler: () => this.replayPlay() },
+            { id: 'replay-next', handler: () => this.replayNext() },
+            { id: 'replay-exit', handler: () => this.exitReplay() }
+        ];
+
+        for (const control of replayControls) {
+            document.getElementById(control.id).addEventListener('click', control.handler.bind(this));
+        }
     }
     
     initBoard() {
@@ -351,7 +342,7 @@ class Gomoku {
     }
     
     getCandidateMoves() {
-        const candidates = [];
+        const candidates = new Set();
         const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
         
         for (let i = 0; i < this.boardSize; i++) {
@@ -364,20 +355,25 @@ class Gomoku {
                         
                         if (ni >= 0 && ni < this.boardSize && nj >= 0 && nj < this.boardSize && 
                             this.board[ni][nj] === null) {
-                            // 检查是否已经添加过
-                            if (!candidates.some(move => move.x === ni && move.y === nj)) {
-                                candidates.push({x: ni, y: nj});
-                            }
+                            candidates.add(`${ni},${nj}`); // 使用字符串作为唯一标识
                         }
                     }
                 }
             }
         }
         
-        return candidates;
+        // 将Set转换回对象数组
+        return Array.from(candidates, str => {
+            const [x, y] = str.split(',').map(Number);
+            return {x, y};
+        });
     }
     
     checkWin(x, y) {
+        const color = this.board[x][y];
+        if (!color) return false;
+        
+        // 只检查落子点周围的连线，提高性能
         const directions = [
             [1, 0],   // 水平
             [0, 1],   // 垂直
@@ -385,14 +381,11 @@ class Gomoku {
             [1, -1]   // 反对角线
         ];
         
-        const color = this.board[x][y];
-        if (!color) return false;
-        
         for (let [dx, dy] of directions) {
-            let count = 1;
+            let count = 1; // 包含当前落子
             
-            // 正方向计数
-            for (let i = 1; i < 5; i++) {
+            // 正方向计数 (最多检查4个位置)
+            for (let i = 1; i <= 4; i++) {
                 const nx = x + dx * i;
                 const ny = y + dy * i;
                 if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize && this.board[nx][ny] === color) {
@@ -402,8 +395,8 @@ class Gomoku {
                 }
             }
             
-            // 反方向计数
-            for (let i = 1; i < 5; i++) {
+            // 反方向计数 (最多检查剩余需要的数量)
+            for (let i = 1; i <= 5 - count; i++) {
                 const nx = x - dx * i;
                 const ny = y - dy * i;
                 if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize && this.board[nx][ny] === color) {
@@ -631,8 +624,8 @@ class Gomoku {
     startReplay() {
         if (this.moveHistory.length === 0) return;
         
-        // 保存当前状态
-        this.originalHistory = JSON.parse(JSON.stringify(this.moveHistory));
+        // 保存当前状态（使用更高效的方式复制）
+        this.originalHistory = this.moveHistory.map(move => ({...move}));
         
         // 进入回放模式
         this.isReplaying = true;
@@ -715,7 +708,7 @@ class Gomoku {
         document.getElementById('replay-play').textContent = '播放';
         
         // 恢复原始游戏状态
-        this.moveHistory = JSON.parse(JSON.stringify(this.originalHistory));
+        this.moveHistory = this.originalHistory.map(move => ({...move}));
         this.initBoard();
         // 重新应用历史记录
         for (const move of this.moveHistory) {
