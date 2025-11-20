@@ -10,10 +10,67 @@ class Gomoku {
         this.canvas = document.getElementById('game-board');
         this.ctx = this.canvas.getContext('2d');
         
+        // 新增功能
+        this.gameMode = 'pvp'; // 'pvp' 或 'ai'
+        this.aiDifficulty = 'medium'; // 'easy', 'medium', 'hard'
+        this.firstPlayer = 'black'; // 'black' 或 'white'
+        this.timeLimit = 0; // 每步时间限制（秒），0表示无限制
+        this.undoLimit = 3; // 悔棋次数限制
+        this.undoCount = 0; // 已使用的悔棋次数
+        this.blackWins = 0; // 黑棋胜场
+        this.whiteWins = 0; // 白棋胜场
+        this.timer = null; // 计时器
+        this.timeLeft = 0; // 剩余时间
+        this.isReplaying = false; // 是否在回放模式
+        this.replayIndex = 0; // 回放索引
+        this.originalHistory = []; // 原始历史记录（回放用）
+        
+        this.initGameSettings();
         this.initBoard();
         this.drawBoard();
         this.bindEvents();
         this.updatePlayerInfo();
+        this.updateStats();
+    }
+    
+    initGameSettings() {
+        // 初始化游戏设置
+        const settings = [
+            { id: 'game-mode', handler: (e) => { this.gameMode = e.target.value; } },
+            { id: 'ai-difficulty', handler: (e) => { this.aiDifficulty = e.target.value; } },
+            { id: 'first-player', handler: (e) => {
+                this.firstPlayer = e.target.value;
+                if (!this.gameOver && this.moveHistory.length === 0) {
+                    this.currentPlayer = e.target.value;
+                    this.updatePlayerInfo();
+                }
+            }},
+            { id: 'time-limit', handler: (e) => {
+                this.timeLimit = parseInt(e.target.value);
+                this.resetTimer();
+            }},
+            { id: 'undo-limit', handler: (e) => {
+                this.undoLimit = parseInt(e.target.value);
+                this.undoCount = 0; // 重置悔棋计数
+            }}
+        ];
+
+        for (const setting of settings) {
+            document.getElementById(setting.id).addEventListener('change', setting.handler);
+        }
+        
+        // 回放控制按钮事件
+        const replayControls = [
+            { id: 'replay-btn', handler: () => this.startReplay() },
+            { id: 'replay-prev', handler: () => this.replayPrev() },
+            { id: 'replay-play', handler: () => this.replayPlay() },
+            { id: 'replay-next', handler: () => this.replayNext() },
+            { id: 'replay-exit', handler: () => this.exitReplay() }
+        ];
+
+        for (const control of replayControls) {
+            document.getElementById(control.id).addEventListener('click', control.handler.bind(this));
+        }
     }
     
     initBoard() {
@@ -23,6 +80,12 @@ class Gomoku {
                 this.board[i][j] = null;
             }
         }
+        this.currentPlayer = this.firstPlayer;
+        this.gameOver = false;
+        this.moveHistory = [];
+        this.undoCount = 0;
+        this.hintPosition = null;
+        this.resetTimer();
     }
     
     drawBoard() {
@@ -126,7 +189,12 @@ class Gomoku {
     
     bindEvents() {
         this.canvas.addEventListener('click', (e) => {
-            if (this.gameOver) return;
+            if (this.gameOver || this.isReplaying) return;
+            
+            // 如果是AI模式且当前是AI回合，不允许点击
+            if (this.gameMode === 'ai' && this.currentPlayer !== this.firstPlayer) {
+                return;
+            }
             
             const rect = this.canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -154,15 +222,22 @@ class Gomoku {
     }
     
     playChess(x, y) {
-        if (this.board[x][y] !== null) return;
+        if (this.board[x][y] !== null || this.gameOver) return;
         
         this.board[x][y] = this.currentPlayer;
         this.moveHistory.push({x, y, player: this.currentPlayer});
         this.hintPosition = null; // 清除提示
+        this.resetTimer(); // 重置计时器
         this.drawBoard();
         
         if (this.checkWin(x, y)) {
             this.gameOver = true;
+            if (this.currentPlayer === 'black') {
+                this.blackWins++;
+            } else {
+                this.whiteWins++;
+            }
+            this.updateStats();
             setTimeout(() => {
                 alert(`恭喜！${this.currentPlayer === 'black' ? '黑棋' : '白棋'}获胜！`);
             }, 100);
@@ -171,9 +246,134 @@ class Gomoku {
         
         this.currentPlayer = this.currentPlayer === 'black' ? 'white' : 'black';
         this.updatePlayerInfo();
+        
+        // 如果是AI模式，AI自动下棋
+        if (this.gameMode === 'ai' && this.currentPlayer !== this.firstPlayer) {
+            setTimeout(() => {
+                this.aiMove();
+            }, 500); // 延迟让玩家看到对手的棋子
+        }
+    }
+    
+    aiMove() {
+        if (this.gameOver) return;
+        
+        let bestMove;
+        
+        // 根据难度选择AI策略
+        switch (this.aiDifficulty) {
+            case 'easy':
+                // 随机下棋
+                bestMove = this.getRandomMove();
+                break;
+            case 'medium':
+                // 基础策略
+                bestMove = this.findBestMove();
+                break;
+            case 'hard':
+                // 高级策略（使用更深的搜索）
+                bestMove = this.findBestMoveHard();
+                break;
+            default:
+                bestMove = this.findBestMove();
+        }
+        
+        if (bestMove) {
+            this.playChess(bestMove.x, bestMove.y);
+        }
+    }
+    
+    getRandomMove() {
+        const emptyCells = [];
+        for (let i = 0; i < this.boardSize; i++) {
+            for (let j = 0; j < this.boardSize; j++) {
+                if (this.board[i][j] === null) {
+                    emptyCells.push({x: i, y: j});
+                }
+            }
+        }
+        
+        if (emptyCells.length > 0) {
+            const randomIndex = Math.floor(Math.random() * emptyCells.length);
+            return emptyCells[randomIndex];
+        }
+        
+        return null;
+    }
+    
+    findBestMoveHard() {
+        // 更高级的AI策略，使用更深的搜索
+        let bestScore = -Infinity;
+        let bestMove = null;
+        
+        // 找到所有可能的落子点（附近有棋子的位置）
+        const candidateMoves = this.getCandidateMoves();
+        
+        for (const move of candidateMoves) {
+            // 尝试下这一步
+            this.board[move.x][move.y] = this.currentPlayer;
+            
+            // 评估这个位置
+            const score = this.evaluatePosition(move.x, move.y, this.currentPlayer) - 
+                         this.evaluatePositionAfterOpponentMove(move.x, move.y);
+            
+            // 撤销这一步
+            this.board[move.x][move.y] = null;
+            
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = move;
+            }
+        }
+        
+        return bestMove || this.findBestMove();
+    }
+    
+    evaluatePositionAfterOpponentMove(x, y) {
+        // 评估对手在某个位置下棋后的威胁
+        const opponent = this.currentPlayer === 'black' ? 'white' : 'black';
+        this.board[x][y] = opponent;
+        
+        let opponentScore = this.evaluatePosition(x, y, opponent);
+        
+        this.board[x][y] = null;
+        
+        return opponentScore;
+    }
+    
+    getCandidateMoves() {
+        const candidates = new Set();
+        const directions = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]];
+        
+        for (let i = 0; i < this.boardSize; i++) {
+            for (let j = 0; j < this.boardSize; j++) {
+                if (this.board[i][j] !== null) {
+                    // 检查周围的空位
+                    for (const [dx, dy] of directions) {
+                        const ni = i + dx;
+                        const nj = j + dy;
+                        
+                        if (ni >= 0 && ni < this.boardSize && nj >= 0 && nj < this.boardSize && 
+                            this.board[ni][nj] === null) {
+                            candidates.add(`${ni},${nj}`); // 使用字符串作为唯一标识
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 将Set转换回对象数组
+        return Array.from(candidates, str => {
+            const [x, y] = str.split(',').map(Number);
+            return {x, y};
+        });
     }
     
     checkWin(x, y) {
+        const color = this.board[x][y];
+        if (!color) return false;
+        
+        // 只检查落子点周围的连线，提高性能
         const directions = [
             [1, 0],   // 水平
             [0, 1],   // 垂直
@@ -181,14 +381,11 @@ class Gomoku {
             [1, -1]   // 反对角线
         ];
         
-        const color = this.board[x][y];
-        if (!color) return false;
-        
         for (let [dx, dy] of directions) {
-            let count = 1;
+            let count = 1; // 包含当前落子
             
-            // 正方向计数
-            for (let i = 1; i < 5; i++) {
+            // 正方向计数 (最多检查4个位置)
+            for (let i = 1; i <= 4; i++) {
                 const nx = x + dx * i;
                 const ny = y + dy * i;
                 if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize && this.board[nx][ny] === color) {
@@ -198,8 +395,8 @@ class Gomoku {
                 }
             }
             
-            // 反方向计数
-            for (let i = 1; i < 5; i++) {
+            // 反方向计数 (最多检查剩余需要的数量)
+            for (let i = 1; i <= 5 - count; i++) {
                 const nx = x - dx * i;
                 const ny = y - dy * i;
                 if (nx >= 0 && nx < this.boardSize && ny >= 0 && ny < this.boardSize && this.board[nx][ny] === color) {
@@ -219,19 +416,47 @@ class Gomoku {
         document.getElementById('current-player').textContent = this.currentPlayer === 'black' ? '黑棋' : '白棋';
     }
     
+    updateStats() {
+        document.getElementById('black-wins').textContent = this.blackWins;
+        document.getElementById('white-wins').textContent = this.whiteWins;
+    }
+    
     undoMove() {
-        if (this.moveHistory.length === 0 || this.gameOver) return;
+        // 检查是否可以悔棋
+        if (this.moveHistory.length === 0 || this.gameOver || this.undoCount >= this.undoLimit) {
+            return;
+        }
         
-        const lastMove = this.moveHistory.pop();
-        this.board[lastMove.x][lastMove.y] = null;
-        this.currentPlayer = lastMove.player;
+        // 如果是AI模式，悔棋时需要悔两步（玩家和AI的棋）
+        if (this.gameMode === 'ai' && this.moveHistory.length >= 2) {
+            // 悔AI的棋
+            const aiMove = this.moveHistory.pop();
+            this.board[aiMove.x][aiMove.y] = null;
+            
+            // 悔玩家的棋
+            const playerMove = this.moveHistory.pop();
+            this.board[playerMove.x][playerMove.y] = null;
+            
+            // 确定当前玩家（应该是下一次轮到的玩家）
+            this.currentPlayer = playerMove.player;
+            
+            this.undoCount += 2;
+        } else if (this.moveHistory.length >= 1) {
+            // 普通悔棋（仅悔一步）
+            const lastMove = this.moveHistory.pop();
+            this.board[lastMove.x][lastMove.y] = null;
+            // 确定当前玩家（应该是下一次轮到的玩家）
+            this.currentPlayer = lastMove.player;
+            this.undoCount++;
+        }
+        
         this.hintPosition = null;
         this.drawBoard();
         this.updatePlayerInfo();
     }
     
     showHint() {
-        if (this.gameOver) return;
+        if (this.gameOver || this.isReplaying) return;
         
         // 简单的提示逻辑：找到一个可以形成连线的好位置
         const bestMove = this.findBestMove();
@@ -339,28 +564,176 @@ class Gomoku {
             }
             
             // 根据连线长度和开放端计算分数
-            if (count >= 4) score += 1000;
-            else if (count === 3 && openEnds === 2) score += 500;
-            else if (count === 3 && openEnds === 1) score += 100;
-            else if (count === 2 && openEnds === 2) score += 50;
-            else if (count === 2 && openEnds === 1) score += 10;
+            if (count >= 4) score += 10000;
+            else if (count === 3 && openEnds === 2) score += 5000;
+            else if (count === 3 && openEnds === 1) score += 1000;
+            else if (count === 2 && openEnds === 2) score += 500;
+            else if (count === 2 && openEnds === 1) score += 100;
+            else if (count === 1 && openEnds === 2) score += 50;
         }
         
         // 优先考虑中心位置
         const centerDistance = Math.abs(x - 7) + Math.abs(y - 7);
-        score += (14 - centerDistance);
+        score += (14 - centerDistance) * 10;
         
         return score;
     }
     
+    resetTimer() {
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        
+        this.timeLeft = this.timeLimit;
+        if (this.timeLimit > 0) {
+            this.updateTimerDisplay();
+            this.timer = setInterval(() => {
+                this.timeLeft--;
+                this.updateTimerDisplay();
+                
+                if (this.timeLeft <= 0) {
+                    clearInterval(this.timer);
+                    this.timer = null;
+                    // 时间到了，当前玩家失败
+                    if (!this.gameOver) {
+                        this.gameOver = true;
+                        const winner = this.currentPlayer === 'black' ? '白棋' : '黑棋';
+                        alert(`${this.currentPlayer === 'black' ? '黑棋' : '白棋'}超时，${winner}获胜！`);
+                        if (winner === '黑棋') {
+                            this.blackWins++;
+                        } else {
+                            this.whiteWins++;
+                        }
+                        this.updateStats();
+                    }
+                }
+            }, 1000);
+        } else {
+            document.getElementById('timer').textContent = '00:00';
+        }
+    }
+    
+    updateTimerDisplay() {
+        const minutes = Math.floor(this.timeLeft / 60);
+        const seconds = this.timeLeft % 60;
+        document.getElementById('timer').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    startReplay() {
+        if (this.moveHistory.length === 0) return;
+        
+        // 保存当前状态（使用更高效的方式复制）
+        this.originalHistory = this.moveHistory.map(move => ({...move}));
+        
+        // 进入回放模式
+        this.isReplaying = true;
+        this.replayIndex = 0;
+        
+        // 隐藏游戏控制按钮，显示回放控制按钮
+        document.querySelector('.game-controls').style.display = 'none';
+        document.querySelector('.replay-controls').style.display = 'flex';
+        
+        // 初始化棋盘
+        this.initBoard();
+        this.drawBoard();
+    }
+    
+    replayPrev() {
+        if (!this.isReplaying || this.replayIndex <= 0) return;
+        
+        this.replayIndex--;
+        this.updateReplayBoard();
+    }
+    
+    replayNext() {
+        if (!this.isReplaying || this.replayIndex >= this.originalHistory.length) return;
+        
+        this.replayIndex++;
+        this.updateReplayBoard();
+    }
+    
+    replayPlay() {
+        if (!this.isReplaying) return;
+        
+        // 播放模式：自动播放
+        if (this.replayInterval) {
+            // 如果已经在播放，则停止
+            clearInterval(this.replayInterval);
+            this.replayInterval = null;
+            document.getElementById('replay-play').textContent = '播放';
+        } else {
+            // 开始播放
+            document.getElementById('replay-play').textContent = '暂停';
+            this.replayInterval = setInterval(() => {
+                if (this.replayIndex < this.originalHistory.length) {
+                    this.replayNext();
+                } else {
+                    // 播放结束，停止
+                    clearInterval(this.replayInterval);
+                    this.replayInterval = null;
+                    document.getElementById('replay-play').textContent = '播放';
+                }
+            }, 1000);
+        }
+    }
+    
+    updateReplayBoard() {
+        // 重新初始化棋盘
+        this.initBoard();
+        
+        // 重放直到当前索引
+        for (let i = 0; i < this.replayIndex; i++) {
+            const move = this.originalHistory[i];
+            this.board[move.x][move.y] = move.player;
+        }
+        
+        this.drawBoard();
+    }
+    
+    exitReplay() {
+        // 退出回放模式
+        this.isReplaying = false;
+        this.replayIndex = 0;
+        
+        if (this.replayInterval) {
+            clearInterval(this.replayInterval);
+            this.replayInterval = null;
+        }
+        
+        // 显示游戏控制按钮，隐藏回放控制按钮
+        document.querySelector('.game-controls').style.display = 'flex';
+        document.querySelector('.replay-controls').style.display = 'none';
+        document.getElementById('replay-play').textContent = '播放';
+        
+        // 恢复原始游戏状态
+        this.moveHistory = this.originalHistory.map(move => ({...move}));
+        this.initBoard();
+        // 重新应用历史记录
+        for (const move of this.moveHistory) {
+            this.board[move.x][move.y] = move.player;
+        }
+        this.drawBoard();
+        this.currentPlayer = this.moveHistory.length % 2 === 0 ? this.firstPlayer : 
+                            (this.firstPlayer === 'black' ? 'white' : 'black');
+        this.updatePlayerInfo();
+    }
+    
     restart() {
         this.initBoard();
-        this.currentPlayer = 'black';
         this.gameOver = false;
-        this.moveHistory = [];
-        this.hintPosition = null;
+        this.undoCount = 0;
+        this.resetTimer();
         this.drawBoard();
         this.updatePlayerInfo();
+        
+        // 如果是AI模式且AI先手，AI自动下第一棋
+        if (this.gameMode === 'ai' && this.firstPlayer !== this.currentPlayer) {
+            setTimeout(() => {
+                this.aiMove();
+            }, 500);
+        }
     }
 }
 

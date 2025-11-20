@@ -9,16 +9,67 @@
 <body>
     <div class="container">
         <h1>五子棋游戏</h1>
+        <div class="game-options">
+            <div class="option-group">
+                <label>游戏模式:</label>
+                <select id="game-mode">
+                    <option value="pvp">玩家对战</option>
+                    <option value="ai">AI对战</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <label>AI难度:</label>
+                <select id="ai-difficulty">
+                    <option value="easy">简单</option>
+                    <option value="medium">中等</option>
+                    <option value="hard">困难</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <label>先手:</label>
+                <select id="first-player">
+                    <option value="black">黑棋</option>
+                    <option value="white">白棋</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <label>步时限制:</label>
+                <select id="time-limit">
+                    <option value="0">无限制</option>
+                    <option value="10">10秒</option>
+                    <option value="30">30秒</option>
+                    <option value="60">60秒</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <label>悔棋次数:</label>
+                <select id="undo-limit">
+                    <option value="0">0次</option>
+                    <option value="1">1次</option>
+                    <option value="3">3次</option>
+                    <option value="5">5次</option>
+                </select>
+            </div>
+        </div>
         <div class="game-info">
             <div class="current-player">当前玩家: <span id="current-player">黑棋</span></div>
+            <div class="game-timer">时间: <span id="timer">00:00</span></div>
+            <div class="game-stats">胜负统计 - 黑棋: <span id="black-wins">0</span>, 白棋: <span id="white-wins">0</span></div>
             <div class="game-controls">
                 <button id="undo-btn">悔棋</button>
                 <button id="hint-btn">提示</button>
                 <button id="restart-btn">重新开始</button>
+                <button id="replay-btn">回放</button>
             </div>
         </div>
         <div class="board-container">
             <canvas id="game-board" width="480" height="480"></canvas>
+        </div>
+        <div class="replay-controls" style="display: none;">
+            <button id="replay-prev">上一步</button>
+            <button id="replay-play">播放</button>
+            <button id="replay-next">下一步</button>
+            <button id="replay-exit">退出回放</button>
         </div>
     </div>
     <script src="script.js"></script>
