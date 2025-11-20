@@ -1,26 +1,800 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>五子棋游戏</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Gomoku (Five in a Row)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .game-board-container {
+            background: #dcb35c;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            width: 500px;
+            height: 500px;
+            background: #dcb35c;
+            border: 2px solid #8b4513;
+            position: relative;
+        }
+
+        .cell {
+            border: 1px solid #8b4513;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .cell:hover::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .stone {
+            width: 85%;
+            height: 85%;
+            border-radius: 50%;
+            position: absolute;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+
+        .black {
+            background: radial-gradient(circle at 30% 30%, #555, #000);
+        }
+
+        .white {
+            background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+            border: 1px solid #888;
+        }
+
+        .controls {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group h3 {
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .btn {
+            background: #4a6fa5;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a7fb5;
+        }
+
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .btn.active {
+            background: #ffd700;
+            color: #000;
+        }
+
+        .mode-selector, .difficulty-selector, .game-type-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mode-btn, .difficulty-btn, .game-type-btn {
+            background: #2c3e50;
+            border: 2px solid #34495e;
+        }
+
+        .mode-btn.active, .difficulty-btn.active, .game-type-btn.active {
+            background: #3498db;
+            border-color: #2980b9;
+        }
+
+        .status {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .scores {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+        }
+
+        .score {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 5px;
+            flex: 1;
+        }
+
+        .score h4 {
+            margin-bottom: 5px;
+            color: #ffd700;
+        }
+
+        .history {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .history-item {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            .board {
+                width: 90vw;
+                height: 90vw;
+                max-width: 400px;
+                max-height: 400px;
+            }
+            
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .controls {
+                width: 90vw;
+                max-width: 400px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .win-animation {
+            animation: winPulse 0.5s ease-in-out 3;
+        }
+
+        @keyframes winPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>五子棋游戏</h1>
-        <div class="game-info">
-            <div class="current-player">当前玩家: <span id="current-player">黑棋</span></div>
-            <div class="game-controls">
-                <button id="undo-btn">悔棋</button>
-                <button id="hint-btn">提示</button>
-                <button id="restart-btn">重新开始</button>
+    <div class="header">
+        <h1>Gomoku (Five in a Row)</h1>
+    </div>
+
+    <div class="game-container">
+        <div class="game-board-container">
+            <div class="board" id="board"></div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <h3>Game Mode</h3>
+                <div class="mode-selector">
+                    <button class="btn mode-btn active" data-mode="pvp">Player vs Player</button>
+                    <button class="btn mode-btn" data-mode="pva">Player vs AI</button>
+                </div>
+            </div>
+
+            <div class="control-group" id="difficulty-section" style="display: none;">
+                <h3>AI Difficulty</h3>
+                <div class="difficulty-selector">
+                    <button class="btn difficulty-btn active" data-difficulty="easy">Easy</button>
+                    <button class="btn difficulty-btn" data-difficulty="medium">Medium</button>
+                    <button class="btn difficulty-btn" data-difficulty="hard">Hard</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Game Type</h3>
+                <div class="game-type-selector">
+                    <button class="btn game-type-btn active" data-type="standard">Standard</button>
+                    <button class="btn game-type-btn" data-type="tournament">Tournament</button>
+                    <button class="btn game-type-btn" data-type="timed">Timed</button>
+                </div>
+            </div>
+
+            <div class="timer" id="timer" style="display: none;">
+                Time: <span id="time-display">60</span>s
+            </div>
+
+            <div class="status" id="status">
+                Player 1's turn (Black)
+            </div>
+
+            <div class="scores">
+                <div class="score">
+                    <h4>Player 1 (Black)</h4>
+                    <div id="score1">0</div>
+                </div>
+                <div class="score">
+                    <h4>Player 2 (White)</h4>
+                    <div id="score2">0</div>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <button class="btn" id="restart-btn">Restart Game</button>
+                <button class="btn" id="pause-btn">Pause</button>
+                <button class="btn" id="undo-btn">Undo</button>
+            </div>
+
+            <div class="history">
+                <h3>Game History</h3>
+                <div id="history"></div>
             </div>
         </div>
-        <div class="board-container">
-            <canvas id="game-board" width="480" height="480"></canvas>
-        </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        class GomokuGame {
+            constructor() {
+                this.boardSize = 15;
+                this.board = Array(this.boardSize).fill().map(() => Array(this.boardSize).fill(0));
+                this.currentPlayer = 1; // 1 for black, 2 for white
+                this.gameActive = true;
+                this.gameMode = 'pvp'; // pvp or pva
+                this.aiDifficulty = 'medium';
+                this.gameType = 'standard';
+                this.scores = { player1: 0, player2: 0 };
+                this.history = [];
+                this.moveHistory = [];
+                this.timerActive = false;
+                this.timeLeft = 60;
+                this.timerInterval = null;
+                
+                this.initializeBoard();
+                this.setupEventListeners();
+                this.updateDisplay();
+            }
+
+            initializeBoard() {
+                const boardElement = document.getElementById('board');
+                boardElement.innerHTML = '';
+                
+                for (let i = 0; i < this.boardSize; i++) {
+                    for (let j = 0; j < this.boardSize; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.dataset.row = i;
+                        cell.dataset.col = j;
+                        cell.addEventListener('click', (e) => this.handleCellClick(i, j));
+                        boardElement.appendChild(cell);
+                    }
+                }
+            }
+
+            setupEventListeners() {
+                // Mode buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.gameMode = e.target.dataset.mode;
+                        document.getElementById('difficulty-section').style.display = 
+                            this.gameMode === 'pva' ? 'block' : 'none';
+                        this.restartGame();
+                    });
+                });
+
+                // Difficulty buttons
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.aiDifficulty = e.target.dataset.difficulty;
+                    });
+                });
+
+                // Game type buttons
+                document.querySelectorAll('.game-type-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.game-type-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.gameType = e.target.dataset.type;
+                        this.updateTimerDisplay();
+                        this.restartGame();
+                    });
+                });
+
+                // Control buttons
+                document.getElementById('restart-btn').addEventListener('click', () => this.restartGame());
+                document.getElementById('pause-btn').addEventListener('click', () => this.togglePause());
+                document.getElementById('undo-btn').addEventListener('click', () => this.undoMove());
+            }
+
+            handleCellClick(row, col) {
+                if (!this.gameActive || this.board[row][col] !== 0) return;
+
+                this.makeMove(row, col);
+                
+                if (this.gameMode === 'pva' && this.currentPlayer === 2 && this.gameActive) {
+                    setTimeout(() => this.makeAIMove(), 500);
+                }
+            }
+
+            makeMove(row, col) {
+                this.board[row][col] = this.currentPlayer;
+                this.moveHistory.push({ row, col, player: this.currentPlayer });
+                
+                const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                const stone = document.createElement('div');
+                stone.className = `stone ${this.currentPlayer === 1 ? 'black' : 'white'}`;
+                cell.appendChild(stone);
+
+                // Add to history
+                const moveNotation = `${String.fromCharCode(65 + col)}${row + 1}`;
+                this.history.push(`Player ${this.currentPlayer} (${this.currentPlayer === 1 ? 'Black' : 'White'}): ${moveNotation}`);
+                this.updateHistoryDisplay();
+
+                if (this.checkWin(row, col)) {
+                    this.endGame(this.currentPlayer);
+                    return;
+                }
+
+                this.switchPlayer();
+                this.updateDisplay();
+            }
+
+            makeAIMove() {
+                if (!this.gameActive) return;
+
+                let move;
+                switch (this.aiDifficulty) {
+                    case 'easy':
+                        move = this.getRandomMove();
+                        break;
+                    case 'medium':
+                        move = this.getMediumAIMove();
+                        break;
+                    case 'hard':
+                        move = this.getHardAIMove();
+                        break;
+                    default:
+                        move = this.getRandomMove();
+                }
+
+                if (move) {
+                    this.makeMove(move.row, move.col);
+                }
+            }
+
+            getRandomMove() {
+                const emptyCells = [];
+                for (let i = 0; i < this.boardSize; i++) {
+                    for (let j = 0; j < this.boardSize; j++) {
+                        if (this.board[i][j] === 0) {
+                            emptyCells.push({ row: i, col: j });
+                        }
+                    }
+                }
+                return emptyCells.length > 0 ? emptyCells[Math.floor(Math.random() * emptyCells.length)] : null;
+            }
+
+            getMediumAIMove() {
+                // Simple strategy: try to win or block opponent
+                // Check for winning moves
+                for (let i = 0; i < this.boardSize; i++) {
+                    for (let j = 0; j < this.boardSize; j++) {
+                        if (this.board[i][j] === 0) {
+                            // Try placing own stone
+                            this.board[i][j] = 2;
+                            if (this.checkWin(i, j)) {
+                                this.board[i][j] = 0;
+                                return { row: i, col: j };
+                            }
+                            this.board[i][j] = 0;
+
+                            // Try blocking opponent
+                            this.board[i][j] = 1;
+                            if (this.checkWin(i, j)) {
+                                this.board[i][j] = 0;
+                                return { row: i, col: j };
+                            }
+                            this.board[i][j] = 0;
+                        }
+                    }
+                }
+
+                // If no immediate win/block, use random move
+                return this.getRandomMove();
+            }
+
+            getHardAIMove() {
+                // More sophisticated AI - evaluate positions
+                let bestScore = -Infinity;
+                let bestMove = null;
+
+                for (let i = 0; i < this.boardSize; i++) {
+                    for (let j = 0; j < this.boardSize; j++) {
+                        if (this.board[i][j] === 0) {
+                            // Evaluate this position
+                            this.board[i][j] = 2; // Temporarily place AI stone
+                            const score = this.evaluatePosition(i, j);
+                            this.board[i][j] = 0; // Remove temporary stone
+
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestMove = { row: i, col: j };
+                            }
+                        }
+                    }
+                }
+
+                return bestMove || this.getRandomMove();
+            }
+
+            evaluatePosition(row, col) {
+                // Simple evaluation based on potential lines
+                let score = 0;
+                
+                // Check all 4 directions for potential 5-in-a-row
+                const directions = [
+                    [0, 1],   // horizontal
+                    [1, 0],   // vertical
+                    [1, 1],   // diagonal \
+                    [1, -1]   // diagonal /
+                ];
+
+                for (const [dx, dy] of directions) {
+                    // Count consecutive stones in positive direction
+                    let count = 1; // The stone we're placing
+                    let r = row + dx, c = col + dy;
+                    
+                    while (r >= 0 && r < this.boardSize && c >= 0 && c < this.boardSize && 
+                           this.board[r][c] === 2) {
+                        count++;
+                        r += dx;
+                        c += dy;
+                    }
+
+                    // Count consecutive stones in negative direction
+                    r = row - dx;
+                    c = col - dy;
+                    
+                    while (r >= 0 && r < this.boardSize && c >= 0 && c < this.boardSize && 
+                           this.board[r][c] === 2) {
+                        count++;
+                        r -= dx;
+                        c -= dy;
+                    }
+
+                    // Add score based on potential
+                    if (count >= 4) score += 1000;
+                    else if (count === 3) score += 100;
+                    else if (count === 2) score += 10;
+                }
+
+                // Also consider blocking opponent
+                this.board[row][col] = 1; // Temporarily place opponent stone
+                for (const [dx, dy] of directions) {
+                    let count = 1;
+                    let r = row + dx, c = col + dy;
+                    
+                    while (r >= 0 && r < this.boardSize && c >= 0 && c < this.boardSize && 
+                           this.board[r][c] === 1) {
+                        count++;
+                        r += dx;
+                        c += dy;
+                    }
+
+                    r = row - dx;
+                    c = col - dy;
+                    
+                    while (r >= 0 && r < this.boardSize && c >= 0 && c < this.boardSize && 
+                           this.board[r][c] === 1) {
+                        count++;
+                        r -= dx;
+                        c -= dy;
+                    }
+
+                    if (count >= 4) score += 500; // Block opponent's winning move
+                    else if (count === 3) score += 50;
+                    else if (count === 2) score += 5;
+                }
+                this.board[row][col] = 0; // Reset
+
+                return score;
+            }
+
+            checkWin(row, col) {
+                const player = this.board[row][col];
+                if (player === 0) return false;
+
+                const directions = [
+                    [0, 1],   // horizontal
+                    [1, 0],   // vertical
+                    [1, 1],   // diagonal \
+                    [1, -1]   // diagonal /
+                ];
+
+                for (const [dx, dy] of directions) {
+                    let count = 1; // The stone we're checking
+
+                    // Check positive direction
+                    let r = row + dx, c = col + dy;
+                    while (r >= 0 && r < this.boardSize && c >= 0 && c < this.boardSize && 
+                           this.board[r][c] === player) {
+                        count++;
+                        r += dx;
+                        c += dy;
+                    }
+
+                    // Check negative direction
+                    r = row - dx;
+                    c = col - dy;
+                    while (r >= 0 && r < this.boardSize && c >= 0 && c < this.boardSize && 
+                           this.board[r][c] === player) {
+                        count++;
+                        r -= dx;
+                        c -= dy;
+                    }
+
+                    if (count >= 5) {
+                        // Highlight winning stones
+                        this.highlightWin(row, col, dx, dy, player);
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            highlightWin(row, col, dx, dy, player) {
+                // Find start of winning line
+                let startRow = row, startCol = col;
+                while (startRow - dx >= 0 && startCol - dy >= 0 && 
+                       this.board[startRow - dx][startCol - dy] === player) {
+                    startRow -= dx;
+                    startCol -= dy;
+                }
+
+                // Highlight all stones in winning line
+                let r = startRow, c = startCol;
+                let count = 0;
+                while (r < this.boardSize && c < this.boardSize && 
+                       this.board[r][c] === player && count < 5) {
+                    const cell = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+                    cell.querySelector('.stone').classList.add('win-animation');
+                    r += dx;
+                    c += dy;
+                    count++;
+                }
+            }
+
+            switchPlayer() {
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+            }
+
+            endGame(winner) {
+                this.gameActive = false;
+                this.stopTimer();
+
+                if (this.gameType !== 'timed') {
+                    this.scores[winner === 1 ? 'player1' : 'player2']++;
+                }
+
+                const winnerText = winner === 1 ? 'Player 1 (Black)' : 
+                                 this.gameMode === 'pva' ? 'AI (White)' : 'Player 2 (White)';
+                document.getElementById('status').textContent = `${winnerText} wins!`;
+                
+                this.updateDisplay();
+            }
+
+            restartGame() {
+                this.board = Array(this.boardSize).fill().map(() => Array(this.boardSize).fill(0));
+                this.currentPlayer = 1;
+                this.gameActive = true;
+                this.history = [];
+                this.moveHistory = [];
+                
+                document.getElementById('board').innerHTML = '';
+                this.initializeBoard();
+                
+                if (this.gameType === 'timed') {
+                    this.startTimer();
+                } else {
+                    this.stopTimer();
+                }
+                
+                document.getElementById('status').textContent = 
+                    this.currentPlayer === 1 ? 'Player 1\'s turn (Black)' : 
+                    this.gameMode === 'pva' ? 'AI\'s turn (White)' : 'Player 2\'s turn (White)';
+                
+                this.updateDisplay();
+            }
+
+            togglePause() {
+                if (this.gameType === 'timed') {
+                    this.timerActive = !this.timerActive;
+                    if (this.timerActive) {
+                        this.startTimer();
+                    } else {
+                        this.stopTimer();
+                    }
+                }
+            }
+
+            startTimer() {
+                if (this.gameType !== 'timed') return;
+                
+                this.timerActive = true;
+                this.timeLeft = 60;
+                this.updateTimerDisplay();
+                
+                this.timerInterval = setInterval(() => {
+                    if (this.timerActive) {
+                        this.timeLeft--;
+                        this.updateTimerDisplay();
+                        
+                        if (this.timeLeft <= 0) {
+                            this.endGame(this.currentPlayer === 1 ? 2 : 1); // Time's up, other player wins
+                        }
+                    }
+                }, 1000);
+            }
+
+            stopTimer() {
+                if (this.timerInterval) {
+                    clearInterval(this.timerInterval);
+                    this.timerInterval = null;
+                }
+            }
+
+            undoMove() {
+                if (this.moveHistory.length === 0 || !this.gameActive) return;
+
+                const lastMove = this.moveHistory.pop();
+                this.board[lastMove.row][lastMove.col] = 0;
+                
+                const cell = document.querySelector(`.cell[data-row="${lastMove.row}"][data-col="${lastMove.col}"]`);
+                if (cell.querySelector('.stone')) {
+                    cell.removeChild(cell.querySelector('.stone'));
+                }
+
+                this.switchPlayer(); // Undo the player switch
+                this.history.pop();
+                this.updateHistoryDisplay();
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                // Update scores
+                document.getElementById('score1').textContent = this.scores.player1;
+                document.getElementById('score2').textContent = this.gameMode === 'pva' ? 'AI' : 'Player 2';
+                document.getElementById('score2').textContent += `: ${this.scores.player2}`;
+
+                // Update status
+                if (this.gameActive) {
+                    const playerText = this.currentPlayer === 1 ? 'Player 1 (Black)' : 
+                                     this.gameMode === 'pva' ? 'AI (White)' : 'Player 2 (White)';
+                    document.getElementById('status').textContent = `${playerText}'s turn`;
+                }
+
+                // Update timer display if applicable
+                this.updateTimerDisplay();
+            }
+
+            updateTimerDisplay() {
+                const timerSection = document.getElementById('timer');
+                const timeDisplay = document.getElementById('time-display');
+                
+                if (this.gameType === 'timed') {
+                    timerSection.style.display = 'block';
+                    timeDisplay.textContent = this.timeLeft;
+                } else {
+                    timerSection.style.display = 'none';
+                }
+            }
+
+            updateHistoryDisplay() {
+                const historyElement = document.getElementById('history');
+                historyElement.innerHTML = '';
+                
+                // Show last 10 moves
+                const recentHistory = this.history.slice(-10);
+                recentHistory.forEach(move => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    div.textContent = move;
+                    historyElement.appendChild(div);
+                });
+                
+                // Scroll to bottom
+                historyElement.scrollTop = historyElement.scrollHeight;
+            }
+        }
+
+        // Initialize the game when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new GomokuGame();
+        });
+    </script>
 </body>
 </html>
