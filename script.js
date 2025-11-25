@@ -5,6 +5,7 @@ class Gomoku {
         this.board = [];
         this.currentPlayer = 'black';
         this.gameOver = false;
+        this.moveHistory = [];
         this.canvas = document.getElementById('game-board');
         this.ctx = this.canvas.getContext('2d');
         
@@ -106,10 +107,17 @@ class Gomoku {
         document.getElementById('restart-btn').addEventListener('click', () => {
             this.restart();
         });
+        
+        document.getElementById('undo-btn').addEventListener('click', () => {
+            this.undo();
+        });
     }
     
     playChess(x, y) {
         if (this.board[x][y] !== null) return;
+        
+        // 记录这一步棋
+        this.moveHistory.push({x, y, player: this.currentPlayer});
         
         this.board[x][y] = this.currentPlayer;
         this.drawBoard();
@@ -172,10 +180,29 @@ class Gomoku {
         document.getElementById('current-player').textContent = this.currentPlayer === 'black' ? '黑棋' : '白棋';
     }
     
+    undo() {
+        if (this.moveHistory.length === 0) return;
+        if (this.gameOver) return;
+        
+        // 取出最后一步
+        const lastMove = this.moveHistory.pop();
+        
+        // 从棋盘上移除这一步
+        this.board[lastMove.x][lastMove.y] = null;
+        
+        // 切换回上一个玩家
+        this.currentPlayer = lastMove.player;
+        
+        // 重绘棋盘
+        this.drawBoard();
+        this.updatePlayerInfo();
+    }
+    
     restart() {
         this.initBoard();
         this.currentPlayer = 'black';
         this.gameOver = false;
+        this.moveHistory = [];
         this.drawBoard();
         this.updatePlayerInfo();
     }

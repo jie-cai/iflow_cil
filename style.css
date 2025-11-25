@@ -33,18 +33,34 @@ h1 {
     font-weight: bold;
 }
 
-#restart-btn {
+.game-controls {
+    display: flex;
+    gap: 10px;
+}
+
+#restart-btn, #undo-btn {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
+#restart-btn {
+    background-color: #4CAF50;
+}
+
 #restart-btn:hover {
     background-color: #45a049;
+}
+
+#undo-btn {
+    background-color: #2196F3;
+}
+
+#undo-btn:hover {
+    background-color: #0b7dda;
 }
 
 .board-container {
