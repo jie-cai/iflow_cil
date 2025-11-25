@@ -3,20 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>五子棋游戏</title>
+    <title>赛博朋克飞机大战</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>五子棋游戏</h1>
-        <div class="game-info">
-            <div class="current-player">当前玩家: <span id="current-player">黑棋</span></div>
-            <button id="restart-btn">重新开始</button>
+    <div class="game-container">
+        <div class="ui-overlay">
+            <div class="score-panel">
+                <div class="score">SCORE: <span id="score">0</span></div>
+                <div class="lives">LIVES: <span id="lives">3</span></div>
+            </div>
+            <div class="game-title">CYBER WAR</div>
         </div>
-        <div class="board-container">
-            <canvas id="game-board" width="480" height="480"></canvas>
+        
+        <canvas id="game-canvas"></canvas>
+        
+        <div class="game-over" id="game-over">
+            <h2>GAME OVER</h2>
+            <p>FINAL SCORE: <span id="final-score">0</span></p>
+            <button id="restart-btn">RESTART</button>
+        </div>
+        
+        <div class="start-screen" id="start-screen">
+            <h1>CYBER WAR</h1>
+            <p>使用方向键或WASD移动，空格键射击</p>
+            <button id="start-btn">START GAME</button>
         </div>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,55 +1,197 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+* {
     margin: 0;
-    background-color: #f0f0f0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.container {
-    text-align: center;
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+body {
+    font-family: 'Orbitron', monospace;
+    background: #0a0a0a;
+    overflow: hidden;
+    cursor: crosshair;
 }
 
-h1 {
-    color: #333;
-    margin-top: 0;
+.game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(180deg, #1a0033 0%, #0a0a0a 50%, #33001a 100%);
 }
 
-.game-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+#game-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 
-.current-player {
+.ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.score-panel {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #00ffff;
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 700;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
 }
 
-#restart-btn {
-    padding: 10px 20px;
+.lives {
+    margin-top: 10px;
+    color: #ff0080;
+    text-shadow: 0 0 10px #ff0080, 0 0 20px #ff0080;
+}
+
+.game-title {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #ff00ff;
+    font-size: 24px;
+    font-weight: 900;
+    text-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff;
+    }
+    to {
+        text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff;
+    }
+}
+
+.game-over, .start-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #fff;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 40px;
+    border: 2px solid #00ffff;
+    border-radius: 10px;
+    box-shadow: 0 0 30px #00ffff;
+}
+
+.game-over h2, .start-screen h1 {
+    color: #ff0080;
+    font-size: 36px;
+    font-weight: 900;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px #ff0080, 0 0 40px #ff0080;
+}
+
+.start-screen h1 {
+    font-size: 48px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.start-screen p {
+    color: #00ffff;
     font-size: 16px;
-    background-color: #4CAF50;
-    color: white;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px #00ffff;
+}
+
+button {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 15px 30px;
+    background: linear-gradient(45deg, #ff0080, #00ffff);
+    color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
 }
 
-#restart-btn:hover {
-    background-color: #45a049;
+button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 30px rgba(255, 0, 128, 0.8);
 }
 
-.board-container {
-    display: inline-block;
-    border: 2px solid #333;
+.game-over {
+    display: none;
+}
+
+.score, .lives {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px 15px;
     border-radius: 5px;
-    background-color: #dcb35c;
+    border: 1px solid currentColor;
+    margin-bottom: 10px;
+}
+
+/* 背景网格效果 */
+.game-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 扫描线效果 */
+.game-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        transparent 0%,
+        rgba(0, 255, 255, 0.02) 50%,
+        transparent 100%
+    );
+    animation: scan 8s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes scan {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(100%);
+    }
 }
