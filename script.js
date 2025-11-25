@@ -229,11 +229,11 @@ class CyberWarGame {
     }
     
     isColliding(obj1, obj2) {
-        const dx = obj1.x - obj2.x;
-        const dy = obj1.y - obj2.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        const dx = Math.abs(obj1.x - obj2.x);
+        const dy = Math.abs(obj1.y - obj2.y);
+        const maxDistance = (obj1.size + obj2.size) / 2;
         
-        return distance < (obj1.size + obj2.size) / 2;
+        return dx < maxDistance && dy < maxDistance;
     }
     
     createExplosion(x, y, color) {
@@ -267,6 +267,7 @@ class Player {
         this.speed = 5;
         this.powerUpActive = false;
         this.powerUpTimer = 0;
+        this.shootCooldown = 0;
     }
     
     update(keys, canvas) {
@@ -289,18 +290,23 @@ class Player {
                 this.powerUpActive = false;
             }
         }
+        
+        if (this.shootCooldown > 0) {
+            this.shootCooldown--;
+        }
     }
     
     shoot(bullets) {
-        const fireRate = this.powerUpActive ? 5 : 10;
+        if (this.shootCooldown > 0) return;
         
-        if (Math.random() * 10 < fireRate) {
-            bullets.push(new Bullet(this.x, this.y - this.size / 2, -10, '#00ffff'));
-            
-            if (this.powerUpActive) {
-                bullets.push(new Bullet(this.x - 10, this.y - this.size / 2, -10, '#00ffff'));
-                bullets.push(new Bullet(this.x + 10, this.y - this.size / 2, -10, '#00ffff'));
-            }
+        const fireDelay = this.powerUpActive ? 5 : 15;
+        this.shootCooldown = fireDelay;
+        
+        bullets.push(new Bullet(this.x, this.y - this.size / 2, -10, '#00ffff'));
+        
+        if (this.powerUpActive) {
+            bullets.push(new Bullet(this.x - 12, this.y - this.size / 2, -10, '#00ffff'));
+            bullets.push(new Bullet(this.x + 12, this.y - this.size / 2, -10, '#00ffff'));
         }
     }
     
