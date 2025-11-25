@@ -11,6 +11,14 @@
         <h1>五子棋游戏</h1>
         <div class="game-options">
             <div class="option-group">
+                <label>棋盘大小:</label>
+                <select id="board-size">
+                    <option value="13">13x13</option>
+                    <option value="15" selected>15x15</option>
+                    <option value="19">19x19</option>
+                </select>
+            </div>
+            <div class="option-group">
                 <label>游戏模式:</label>
                 <select id="game-mode">
                     <option value="pvp">玩家对战</option>
@@ -18,10 +26,24 @@
                 </select>
             </div>
             <div class="option-group">
+                <label>胜负规则:</label>
+                <select id="win-mode">
+                    <option value="classic">经典模式（五子获胜）</option>
+                    <option value="enhanced">增强模式（六子或以上）</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <label>计分模式:</label>
+                <select id="score-mode">
+                    <option value="none">无计分</option>
+                    <option value="chain">计分模式（连续多子加分）</option>
+                </select>
+            </div>
+            <div class="option-group">
                 <label>AI难度:</label>
                 <select id="ai-difficulty">
                     <option value="easy">简单</option>
-                    <option value="medium">中等</option>
+                    <option value="medium" selected>中等</option>
                     <option value="hard">困难</option>
                 </select>
             </div>
@@ -34,11 +56,22 @@
             </div>
             <div class="option-group">
                 <label>步时限制:</label>
-                <select id="time-limit">
+                <select id="move-time-limit">
                     <option value="0">无限制</option>
-                    <option value="10">10秒</option>
+                    <option value="15">15秒</option>
                     <option value="30">30秒</option>
-                    <option value="60">60秒</option>
+                    <option value="60">1分钟</option>
+                    <option value="120">2分钟</option>
+                </select>
+            </div>
+            <div class="option-group">
+                <label>总时间限制:</label>
+                <select id="total-time-limit">
+                    <option value="0">无限制</option>
+                    <option value="300">5分钟</option>
+                    <option value="600">10分钟</option>
+                    <option value="900">15分钟</option>
+                    <option value="1800">30分钟</option>
                 </select>
             </div>
             <div class="option-group">
@@ -48,16 +81,26 @@
                     <option value="1">1次</option>
                     <option value="3">3次</option>
                     <option value="5">5次</option>
+                    <option value="-1">无限</option>
                 </select>
             </div>
         </div>
         <div class="game-info">
-            <div class="current-player">当前玩家: <span id="current-player">黑棋</span></div>
-            <div class="game-timer">时间: <span id="timer">00:00</span></div>
-            <div class="game-stats">胜负统计 - 黑棋: <span id="black-wins">0</span>, 白棋: <span id="white-wins">0</span></div>
+            <div class="game-status">
+                <div class="current-player">当前玩家: <span id="current-player">黑棋</span></div>
+                <div class="current-scores">得分 - 黑棋: <span id="black-score">0</span>, 白棋: <span id="white-score">0</span></div>
+            </div>
+            <div class="game-timers">
+                <div class="move-timer">步时: <span id="move-timer">00:00</span></div>
+                <div class="total-timer">总时: <span id="total-timer">00:00</span></div>
+            </div>
+            <div class="game-stats">
+                胜负统计 - 黑棋: <span id="black-wins">0</span>, 白棋: <span id="white-wins">0</span>
+            </div>
             <div class="game-controls">
                 <button id="undo-btn">悔棋</button>
                 <button id="hint-btn">提示</button>
+                <button id="settings-btn">设置</button>
                 <button id="restart-btn">重新开始</button>
                 <button id="replay-btn">回放</button>
             </div>
@@ -70,6 +113,35 @@
             <button id="replay-play">播放</button>
             <button id="replay-next">下一步</button>
             <button id="replay-exit">退出回放</button>
+        </div>
+        
+        <!-- 设置面板 -->
+        <div id="settings-panel" class="settings-panel" style="display: none;">
+            <h3>游戏设置</h3>
+            <div class="settings-content">
+                <div class="settings-group">
+                    <h4>当前游戏信息</h4>
+                    <div>棋盘大小: <span id="current-board-size">15x15</span></div>
+                    <div>游戏模式: <span id="current-game-mode">玩家对战</span></div>
+                    <div>胜负规则: <span id="current-win-mode">经典模式（五子获胜）</span></div>
+                    <div>计分模式: <span id="current-score-mode">无计分</span></div>
+                    <div>当前手数: <span id="current-move-count">0</span></div>
+                </div>
+                <div class="settings-group">
+                    <h4>历史记录</h4>
+                    <div id="move-history" class="move-history">
+                        <div class="no-history">暂无棋谱记录</div>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <h4>快捷键</h4>
+                    <div>U: 悔棋</div>
+                    <div>H: 提示</div>
+                    <div>R: 重新开始</div>
+                    <div>Esc: 关闭设置</div>
+                </div>
+            </div>
+            <button id="close-settings" class="close-settings">关闭</button>
         </div>
     </div>
     <script src="script.js"></script>

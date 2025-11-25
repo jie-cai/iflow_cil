@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋游戏测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+        .feature-item {
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 3px;
+            border-left: 4px solid #4CAF50;
+        }
+        .feature-item strong {
+            color: #2E7D32;
+        }
+        .launch-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            transition: background-color 0.3s;
+        }
+        .launch-button:hover {
+            background: #45a049;
+        }
+        .controls {
+            text-align: center;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2E7D32;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎮 五子棋游戏 - 功能测试</h1>
+        
+        <div class="controls">
+            <a href="gomoku.html" class="launch-button">🚀 启动五子棋游戏</a>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">3</div>
+                <div>棋盘大小</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">3</div>
+                <div>游戏模式</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">3</div>
+                <div>AI难度</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">2</div>
+                <div>胜负规则</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 基础功能</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>棋盘选择:</strong> 支持13x13、15x15、19x19三种棋盘大小
+                </div>
+                <div class="feature-item">
+                    <strong>轮流下棋:</strong> 黑白双方轮流落子，先手可选择
+                </div>
+                <div class="feature-item">
+                    <strong>胜负判断:</strong> 智能检测横、竖、斜线连线
+                </div>
+                <div class="feature-item">
+                    <strong>界面设计:</strong> 美观清晰的视觉效果和操作反馈
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎲 多样玩法</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>游戏模式:</strong> 玩家对战、AI对战两种模式
+                </div>
+                <div class="feature-item">
+                    <strong>胜负规则:</strong> 经典模式(五子获胜)、增强模式(六子获胜)
+                </div>
+                <div class="feature-item">
+                    <strong>计分系统:</strong> 连续多子可获得额外分数
+                </div>
+                <div class="feature-item">
+                    <strong>时间控制:</strong> 步时限制、总时间限制、无限制三种选项
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🤖 AI智能</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>简单AI:</strong> 随机落子，适合初学者
+                </div>
+                <div class="feature-item">
+                    <strong>中等AI:</strong> 具备基础策略，有一定挑战性
+                </div>
+                <div class="feature-item">
+                    <strong>困难AI:</strong> 高级策略评估，挑战高手
+                </div>
+                <div class="feature-item">
+                    <strong>智能提示:</strong> AI分析并给出最佳落子建议
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>⚡ 高级功能</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>悔棋功能:</strong> 支持设置悔棋次数限制
+                </div>
+                <div class="feature-item">
+                    <strong>重新开始:</strong> 一键重置游戏状态
+                </div>
+                <div class="feature-item">
+                    <strong>游戏回放:</strong> 完整记录和回放棋谱
+                </div>
+                <div class="feature-item">
+                    <strong>设置面板:</strong> 查看游戏信息和历史记录
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>⌨️ 快捷操作</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>U键:</strong> 悔棋功能
+                </div>
+                <div class="feature-item">
+                    <strong>H键:</strong> 获取AI提示
+                </div>
+                <div class="feature-item">
+                    <strong>R键:</strong> 重新开始游戏
+                </div>
+                <div class="feature-item">
+                    <strong>ESC键:</strong> 关闭设置面板
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📱 响应式设计</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>多屏适配:</strong> 支持桌面、平板、手机不同屏幕
+                </div>
+                <div class="feature-item">
+                    <strong>触摸支持:</strong> 移动设备触摸操作
+                </div>
+                <div class="feature-item">
+                    <strong>自适应布局:</strong> 根据屏幕尺寸自动调整
+                </div>
+                <div class="feature-item">
+                    <strong>优化体验:</strong> 流畅的动画和交互效果
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <a href="gomoku.html" class="launch-button">🎮 立即体验五子棋</a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
+            <p>五子棋游戏 - 功能丰富，体验流畅</p>
+            <p>支持多种游戏模式，智能AI，完整回放功能</p>
+        </div>
+    </div>
+</body>
+</html>
